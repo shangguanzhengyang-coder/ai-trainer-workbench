@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>人工智能训练师（三级）刷题工作台 · 四川成都</title>
+<style>
+:root{
+  --bg:#f4f6fb; --panel:#ffffff; --ink:#141b2d; --ink2:#4b5675; --ink3:#8892ad;
+  --line:#e4e8f2; --brand:#2c5cff; --brand-soft:#eaf0ff; --ok:#0f9d58; --ok-soft:#e6f6ee;
+  --bad:#e5484d; --bad-soft:#fdeaea; --warn:#c77700; --warn-soft:#fff4e0;
+  --shadow:0 8px 30px rgba(20,32,80,.08); --radius:16px;
+  --mono:ui-monospace,"SFMono-Regular","Cascadia Mono",Consolas,monospace;
+}
+html[data-theme="dark"]{
+  --bg:#0e1220; --panel:#171d2e; --ink:#eaeefb; --ink2:#a9b3cd; --ink3:#6d7896;
+  --line:#26304a; --brand:#6f8dff; --brand-soft:#1d2743; --ok:#3ddc97; --ok-soft:#122c22;
+  --bad:#ff6b6b; --bad-soft:#2d1618; --warn:#ffc061; --warn-soft:#2b2110;
+  --shadow:0 8px 30px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:"PingFang SC","Microsoft YaHei","Hiragino Sans GB","Source Han Sans SC",system-ui,sans-serif;
+  font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;font-size:inherit}
+::selection{background:var(--brand-soft)}
+
+/* ============ layout ============ */
+.app{display:flex;min-height:100vh}
+.side{
+  width:224px;flex:0 0 224px;background:var(--panel);border-right:1px solid var(--line);
+  padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.logo{display:flex;gap:10px;align-items:center;padding:6px 10px 16px}
+.logo .mark{
+  width:38px;height:38px;border-radius:11px;flex:0 0 38px;
+  background:linear-gradient(135deg,#2c5cff,#7b5cff);color:#fff;display:grid;place-items:center;
+  font-weight:800;font-size:15px;letter-spacing:-.5px;box-shadow:0 6px 16px rgba(44,92,255,.35)
+}
+.logo b{display:block;font-size:14px;line-height:1.25}
+.logo span{display:block;font-size:11px;color:var(--ink3)}
+.nav-item{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:11px;
+  color:var(--ink2);font-size:14px;font-weight:500;transition:.15s;width:100%;text-align:left;
+}
+.nav-item:hover{background:var(--bg);color:var(--ink)}
+.nav-item.active{background:var(--brand-soft);color:var(--brand);font-weight:700}
+.nav-item .ic{width:18px;text-align:center;font-size:15px}
+.nav-item .cnt{margin-left:auto;font-size:11px;padding:1px 7px;border-radius:20px;background:var(--bg);color:var(--ink3);font-weight:700}
+.nav-item.active .cnt{background:#fff;color:var(--brand)}
+html[data-theme="dark"] .nav-item.active .cnt{background:var(--panel)}
+.nav-sep{margin:12px 10px 6px;font-size:11px;color:var(--ink3);letter-spacing:1px;font-weight:700}
+.side-foot{margin-top:auto;padding:10px}
+
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{
+  display:flex;align-items:center;gap:12px;padding:12px 22px;background:var(--panel);
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:30;flex-wrap:wrap;
+}
+.top h1{font-size:15px;margin:0;font-weight:700;white-space:nowrap}
+.top .sub{font-size:12px;color:var(--ink3);white-space:nowrap}
+.spacer{flex:1}
+.countdown{
+  display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:12px;
+  background:linear-gradient(135deg,#182a63,#2c5cff);color:#fff;font-weight:700;font-size:13px;
+  box-shadow:0 6px 18px rgba(44,92,255,.3);white-space:nowrap
+}
+.countdown small{opacity:.75;font-weight:500;font-size:11px}
+.countdown .num{font-family:var(--mono);font-size:15px;letter-spacing:.5px}
+.countdown.urgent{background:linear-gradient(135deg,#7a1b1b,#e5484d);box-shadow:0 6px 18px rgba(229,72,77,.35)}
+.icon-btn{
+  width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--ink2);
+  border:1px solid var(--line);background:var(--panel);font-size:15px;flex:0 0 36px;
+}
+.icon-btn:hover{border-color:var(--brand);color:var(--brand)}
+.content{padding:22px;max-width:1080px;width:100%;margin:0 auto;flex:1}
+@media(max-width:900px){
+  .side{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);transition:.25s;z-index:60;box-shadow:var(--shadow)}
+  .side.open{transform:none}
+  .content{padding:14px}
+  .top{padding:10px 14px}
+  .top h1{font-size:14px}
+  .top .sub{display:none}
+}
+.backdrop{display:none;position:fixed;inset:0;background:rgba(10,16,35,.45);z-index:55}
+.backdrop.show{display:block}
+@media(min-width:901px){.menu-btn{display:none}.backdrop{display:none!important}}
+
+/* ============ cards ============ */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.pad{padding:20px}
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:820px){.g4{grid-template-columns:repeat(2,1fr)}.g3,.g2{grid-template-columns:1fr}}
+.stat{padding:16px 18px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.stat .k{font-size:12px;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.stat .v{font-size:26px;font-weight:800;letter-spacing:-.5px;margin-top:4px;font-variant-numeric:tabular-nums}
+.stat .v small{font-size:12px;color:var(--ink3);font-weight:600;margin-left:3px}
+h2.sec{font-size:16px;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+h2.sec .dot{width:4px;height:16px;border-radius:3px;background:var(--brand)}
+.muted{color:var(--ink3);font-size:12.5px}
+
+/* progress ring */
+.ring{--p:0;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--brand) calc(var(--p)*1%),var(--line) 0);position:relative;flex:0 0 92px}
+.ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--panel)}
+.ring b{position:relative;font-size:19px;font-weight:800}
+.ring b small{font-size:10px;color:var(--ink3)}
+
+/* ============ question ============ */
+.qhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.pill{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:7px;background:var(--bg);color:var(--ink2)}
+.pill.single{background:var(--brand-soft);color:var(--brand)}
+.pill.multi{background:#f3ebff;color:#7b3fe4}
+.pill.tf{background:#e7f7f2;color:#0b8a6a}
+.pill.case{background:#fff1e2;color:#c26a00}
+html[data-theme="dark"] .pill.multi{background:#2a1f3d;color:#c4a6ff}
+html[data-theme="dark"] .pill.tf{background:#10291f;color:#4fd1a5}
+html[data-theme="dark"] .pill.case{background:#2f2411;color:#ffb454}
+.qno{font-weight:800;font-size:14px}
+.stem{font-size:17px;font-weight:600;line-height:1.7;margin:0 0 18px;white-space:pre-wrap}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border-radius:12px;
+  border:1.5px solid var(--line);background:var(--panel);transition:.12s;text-align:left;width:100%;
+  font-size:15px;line-height:1.6;
+}
+.opt:hover:not(.locked){border-color:var(--brand);background:var(--brand-soft)}
+.opt .k{
+  width:24px;height:24px;flex:0 0 24px;border-radius:7px;display:grid;place-items:center;
+  background:var(--bg);font-weight:800;font-size:13px;color:var(--ink2);margin-top:1px;
+}
+.opt.sel{border-color:var(--brand);background:var(--brand-soft)}
+.opt.sel .k{background:var(--brand);color:#fff}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .k{background:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .k{background:var(--bad);color:#fff}
+.opt .tag{margin-left:auto;font-size:11px;font-weight:700;padding:1px 7px;border-radius:6px;white-space:nowrap}
+.opt.right .tag{background:var(--ok);color:#fff}
+.opt.wrong .tag{background:var(--bad);color:#fff}
+.opt .txt{flex:1;min-width:0;overflow-wrap:anywhere}
+
+.actions{display:flex;gap:10px;align-items:center;margin-top:20px;flex-wrap:wrap}
+.btn{
+  padding:10px 20px;border-radius:11px;font-weight:700;font-size:14px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink2);transition:.15s;display:inline-flex;align-items:center;gap:7px
+}
+.btn:hover{border-color:var(--brand);color:var(--brand)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 6px 16px rgba(44,92,255,.28)}
+.btn.primary:hover{filter:brightness(1.06);color:#fff}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink3)}
+.btn.ghost:hover{background:var(--bg);color:var(--ink)}
+.btn.sm{padding:6px 12px;font-size:12.5px;border-radius:9px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.feedback{margin-top:16px;padding:14px 16px;border-radius:12px;font-size:14px;font-weight:600;display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.feedback span{overflow-wrap:anywhere}
+.feedback.ok{background:var(--ok-soft);color:var(--ok)}
+.feedback.bad{background:var(--bad-soft);color:var(--bad)}
+.feedback.mid{background:var(--warn-soft);color:var(--warn)}
+.explain{margin-top:14px;border-top:1px dashed var(--line);padding-top:14px;white-space:pre-wrap;font-size:14px;color:var(--ink2);line-height:1.75}
+.explain .lbl{font-weight:800;color:var(--ink);display:block;margin-bottom:6px;font-size:13px}
+.issue{
+  margin-top:14px;padding:13px 15px;border-radius:12px;background:var(--warn-soft);
+  border:1px solid color-mix(in srgb,var(--warn) 35%,transparent);font-size:13.5px;line-height:1.7;color:var(--ink);
+  overflow-wrap:anywhere
+}
+.issue .hd{font-weight:800;color:var(--warn);display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.issue .sug{font-weight:700;color:var(--ink)}
+.issue.hi{border-color:color-mix(in srgb,var(--bad) 45%,transparent);background:var(--bad-soft)}
+.issue.hi .hd{color:var(--bad)}
+.issue.info{border-color:color-mix(in srgb,var(--brand) 35%,transparent);background:var(--brand-soft)}
+.issue.info .hd{color:var(--brand)}
+
+/* answer sheet */
+.sheet{display:flex;flex-wrap:wrap;gap:7px}
+.sheet button{
+  width:34px;height:34px;border-radius:9px;font-weight:700;font-size:12.5px;
+  border:1.5px solid var(--line);background:var(--panel);color:var(--ink2);transition:.12s
+}
+.sheet button:hover{border-color:var(--brand)}
+.sheet button.cur{outline:2px solid var(--brand);outline-offset:1px}
+.sheet button.ok{background:var(--ok-soft);border-color:color-mix(in srgb,var(--ok) 40%,transparent);color:var(--ok)}
+.sheet button.bad{background:var(--bad-soft);border-color:color-mix(in srgb,var(--bad) 40%,transparent);color:var(--bad)}
+.sheet button.done{background:var(--brand-soft);border-color:color-mix(in srgb,var(--brand) 35%,transparent);color:var(--brand)}
+.sheet button.flag::after{content:"●";position:absolute}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink3);margin-top:12px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* exam */
+.exambar{display:flex;align-items:center;gap:16px;padding:12px 18px;border-radius:14px;background:var(--panel);border:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.exambar .t{font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:1px}
+.exambar.danger .t{color:var(--bad);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.45}}
+.qbar{height:5px;border-radius:4px;background:var(--line);overflow:hidden;flex:1;min-width:120px}
+.qbar i{display:block;height:100%;background:var(--brand);border-radius:4px;transition:.3s}
+
+/* lists */
+.row{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.row .no{width:34px;flex:0 0 34px;font-weight:800;color:var(--ink3);font-size:12.5px;font-family:var(--mono)}
+.row .body{flex:1;min-width:0}
+.row .body p{margin:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+.row .meta{font-size:11.5px;color:var(--ink3);margin-top:2px;display:flex;gap:8px;flex-wrap:wrap}
+.row:hover .body p{color:var(--brand)}
+
+.empty{text-align:center;padding:60px 20px;color:var(--ink3)}
+.empty .big{font-size:40px;margin-bottom:10px;opacity:.5}
+
+/* charts */
+.bars{display:flex;flex-direction:column;gap:10px}
+.bar{display:grid;grid-template-columns:88px 1fr 54px;align-items:center;gap:10px;font-size:12.5px}
+.bar .track{height:9px;border-radius:6px;background:var(--bg);overflow:hidden}
+.bar .track i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#2c5cff,#7b5cff)}
+.bar .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,16,35,.5);z-index:100;display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px)}
+.modal.show{display:flex}
+.modal .box{background:var(--panel);border-radius:18px;max-width:560px;width:100%;max-height:88vh;overflow:auto;padding:22px;box-shadow:0 30px 80px rgba(0,0,0,.35)}
+.modal h3{margin:0 0 16px;font-size:17px}
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.field label{font-size:13.5px;font-weight:600}
+.field .hint{font-size:11.5px;color:var(--ink3);font-weight:400;display:block;margin-top:1px}
+input[type=text],input[type=date],input[type=number],select,textarea{
+  font-family:inherit;font-size:13.5px;padding:8px 11px;border-radius:9px;border:1.5px solid var(--line);
+  background:var(--bg);color:var(--ink);outline:none;min-width:0
+}
+input:focus,select:focus,textarea:focus{border-color:var(--brand)}
+textarea{width:100%;resize:vertical;min-height:70px;line-height:1.6}
+
+.toast{
+  position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);opacity:0;
+  background:#101828;color:#fff;padding:11px 20px;border-radius:12px;font-size:13.5px;font-weight:600;
+  z-index:200;transition:.25s;pointer-events:none;box-shadow:0 12px 30px rgba(0,0,0,.3);max-width:90vw;text-align:center
+}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+.kbd{font-family:var(--mono);font-size:11px;padding:1px 5px;border-radius:5px;border:1px solid var(--line);color:var(--ink3);background:var(--bg)}
+.hide{display:none!important}
+@media(max-width:640px){
+  .stem{font-size:16px}
+  .opt{font-size:14.5px;padding:12px 13px}
+  .exambar .t{font-size:20px}
+  .stat .v{font-size:22px}
+}
+.scroll-x{overflow-x:auto;-webkit-overflow-scrolling:touch}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" id="side">
+    <div class="logo">
+      <div class="mark">AI</div>
+      <div><b>刷题工作台</b><span>AI训练师 · 三级/高级工</span></div>
+    </div>
+    <button class="nav-item active" data-view="home"><span class="ic">◉</span>学习首页</button>
+    <button class="nav-item" data-view="practice"><span class="ic">✎</span>顺序练习</button>
+    <button class="nav-item" data-view="random"><span class="ic">⤨</span>随机练习</button>
+    <button class="nav-item" data-view="exam"><span class="ic">⏱</span>模拟考试</button>
+    <div class="nav-sep">专 项</div>
+    <button class="nav-item" data-view="wrong"><span class="ic">✗</span>错题集<span class="cnt" id="cWrong">0</span></button>
+    <button class="nav-item" data-view="fav"><span class="ic">★</span>收藏夹<span class="cnt" id="cFav">0</span></button>
+    <button class="nav-item" data-view="doubt"><span class="ic">⚠</span>答案存疑<span class="cnt" id="cDoubt">0</span></button>
+    <div class="nav-sep">数 据</div>
+    <button class="nav-item" data-view="stats"><span class="ic">▤</span>学习统计</button>
+    <div class="side-foot">
+      <button class="btn ghost sm" id="btnTheme">◐ 深色模式</button>
+    </div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
+
+  <div class="main">
+    <header class="top">
+      <button class="icon-btn menu-btn" id="btnMenu">☰</button>
+      <h1 id="pageTitle">学习首页</h1>
+      <span class="sub" id="pageSub"></span>
+      <span class="spacer"></span>
+      <div class="countdown" id="cdExam" title="点击设置考试日期">
+        <small>距考试</small><span class="num" id="cdExamNum">--</span>
+      </div>
+      <button class="icon-btn" id="btnSettings" title="设置">⚙</button>
+    </header>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div class="modal" id="modal"><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 数据 ================= */
+const BANK = window.__BANK__ || {"meta":{"title":"人工智能训练师（三级/高级工）理论题库","source":"人工智能训练师-300道题.docx","count":299,"generated":"2026-10-23"},"questions":[{"no":1,"type":"single","stem":"人脸识别门禁闸机系统通常不包括以下哪项功能？","options":[{"k":"A","t":"人脸美化处理"},{"k":"B","t":"实时监控和记录出入人员"},{"k":"C","t":"自动开关门控制"},{"k":"D","t":"报警和通知功能"}],"answer":"A","marked":"A","explain":"","id":1,"chapter":"行业应用与场景"},{"no":2,"type":"single","stem":"以下哪个不是优化器的常见类型？","options":[{"k":"A","t":"随机梯度下降（SGD）"},{"k":"B","t":"批量梯度下降（BGD）"},{"k":"C","t":"小批量梯度下降（Mini-batch GD）"},{"k":"D","t":"K-近邻算法（KNN）"}],"answer":"D","marked":"A","explain":"","id":2,"chapter":"模型训练与调优"},{"no":3,"type":"single","stem":"优化器在机器学习中的主要作用是什么？","options":[{"k":"A","t":"选择最佳的模型结构"},{"k":"B","t":"提供训练数据"},{"k":"C","t":"调整模型的参数以最小化损失函数"},{"k":"D","t":"进行特征选择"}],"answer":"C","marked":"B","explain":"","id":3,"chapter":"办公软件与工具"},{"no":4,"type":"single","stem":"人脸识别系统在进行身份验证时，以下哪项不是通常需要考虑的因素？","options":[{"k":"A","t":"图像的分辨率和质量"},{"k":"B","t":"人脸的角度和光照条件"},{"k":"C","t":"用户的年龄和性别"},{"k":"D","t":"用户的种族和肤色"}],"answer":"D","marked":"D","explain":"","id":4,"chapter":"行业应用与场景"},{"no":5,"type":"single","stem":"人脸识别系统在进行身份识别时，以下哪个步骤不是必需的？","options":[{"k":"A","t":"人脸检测"},{"k":"B","t":"特征提取"},{"k":"C","t":"数据存储"},{"k":"D","t":"声音识别"}],"answer":"D","marked":"D","explain":"","id":5,"chapter":"行业应用与场景"},{"no":7,"type":"single","stem":"在人工智能项目中，以下哪个角色不是必需的？","options":[{"k":"A","t":"数据采集人员"},{"k":"B","t":"机器学习工程师"},{"k":"C","t":"软件开发人员"},{"k":"D","t":"市场营销专员"}],"answer":"D","marked":"D","explain":"","id":6,"chapter":"数据采集与清洗"},{"no":8,"type":"single","stem":"智能系统实现的基础是什么？","options":[{"k":"A","t":"大数据"},{"k":"B","t":"云计算"},{"k":"C","t":"物联网技术"},{"k":"D","t":"人工智能算法"}],"answer":"D","marked":"D","explain":"","id":7,"chapter":"人工智能基础"},{"no":9,"type":"single","stem":"以下哪个技术不是智能系统实现中常用的技术？","options":[{"k":"A","t":"量子计算"},{"k":"B","t":"机器学习"},{"k":"C","t":"深度学习"},{"k":"D","t":"自然语言处理"}],"answer":"A","marked":"A","explain":"","id":8,"chapter":"人工智能基础"},{"no":10,"type":"single","stem":"以下哪个选项不属于智能系统的类型？","options":[{"k":"A","t":"嵌入式智能系统"},{"k":"B","t":"机器人智能系统"},{"k":"C","t":"自然语言处理系统"},{"k":"D","t":"社交媒体平台"}],"answer":"D","marked":"D","explain":"","id":9,"chapter":"人工智能基础"},{"no":11,"type":"single","stem":"哪个系统通常用于实现自动驾驶汽车？","options":[{"k":"A","t":"专家系统"},{"k":"B","t":"智能传感器系统"},{"k":"C","t":"机器人操作系统"},{"k":"D","t":"机器学习平台"}],"answer":"B","marked":"B","explain":"","id":10,"chapter":"计算机与硬件基础"},{"no":12,"type":"single","stem":"智能系统的主要特征不包括以下哪一项？","options":[{"k":"A","t":"学习能力"},{"k":"B","t":"适应性"},{"k":"C","t":"确定性"},{"k":"D","t":"自主性"}],"answer":"C","marked":"A","explain":"","id":11,"chapter":"综合"},{"no":13,"type":"single","stem":"以下哪个描述最准确地反映了智能系统的自适应性特征？","options":[{"k":"A","t":"系统能够处理大量数据"},{"k":"B","t":"系统可以自动调整参数以优化性能"},{"k":"C","t":"系统能执行复杂的计算任务"},{"k":"D","t":"系统能够模拟人类思维"}],"answer":"B","marked":"A","explain":"","id":12,"chapter":"综合"},{"no":14,"type":"single","stem":"智能系统的定义中，以下哪个描述是不准确的？","options":[{"k":"A","t":"智能系统能够执行复杂的任务并做出决策。"},{"k":"B","t":"智能系统通常具备学习和适应的能力。"},{"k":"C","t":"智能系统能够与人类用户进行交互并提供服务。"},{"k":"D","t":"智能系统完全由硬件构成，不需要软件支持。"}],"answer":"D","marked":"D","explain":"","id":13,"chapter":"综合"},{"no":15,"type":"single","stem":"智能系统的主要特征不包括以下哪项？","options":[{"k":"A","t":"能够自主学习和适应"},{"k":"B","t":"具有感知和决策能力"},{"k":"C","t":"完全由人类控制，无需自动化"},{"k":"D","t":"能够与外部环境进行交互"}],"answer":"C","marked":"C","explain":"","id":14,"chapter":"综合"},{"no":16,"type":"single","stem":"自然语言处理系统中，用于将文本转换为计算机可理解的格式的技术是?","options":[{"k":"A","t":"文本挖掘"},{"k":"B","t":"文本分类"},{"k":"C","t":"机器翻译"},{"k":"D","t":"自然语言理解"}],"answer":"D","marked":"D","explain":"","id":15,"chapter":"计算机与硬件基础"},{"no":17,"type":"single","stem":"在自然语言处理中，以下哪项技术用于将文本转换为计算机可以理解和处理的数值向量?","options":[{"k":"A","t":"文本分类"},{"k":"B","t":"句法分析"},{"k":"C","t":"词向量表示"},{"k":"D","t":"语义角色标注"}],"answer":"C","marked":"C","explain":"","id":16,"chapter":"计算机与硬件基础"},{"no":18,"type":"single","stem":"在计算机视觉系统中，以下哪项技术对于实现目标跟踪和物体识别至关重要?","options":[{"k":"A","t":"光学字符识别"},{"k":"B","t":"边缘检测"},{"k":"C","t":"语义分割"},{"k":"D","t":"面部识别"}],"answer":"B","marked":"B","explain":"","id":17,"chapter":"计算机与硬件基础","issue":{"level":"mid","note":"答案标为 B（边缘检测），但边缘检测主要用于轮廓/特征提取，对“目标跟踪和物体识别”更关键的是特征提取或语义分割。此题在各类题库中答案不统一，属争议题，可优先记 B。","suggest":"B（存疑）"}},{"no":19,"type":"single","stem":"计算机视觉系统中，用于图像特征提取的主要方法是?","options":[{"k":"A","t":"卷积神经网络"},{"k":"B","t":"循环神经网络"},{"k":"C","t":"支持向量机"},{"k":"D","t":"决策树"}],"answer":"A","marked":"C","explain":"","id":18,"chapter":"计算机与硬件基础"},{"no":20,"type":"single","stem":"自动驾驶系统的基础中，哪项技术用于实现车辆的环境感知?","options":[{"k":"A","t":"全球定位系统"},{"k":"B","t":"雷达传感器"},{"k":"C","t":"高精度地图"},{"k":"D","t":"车载娱乐系统"}],"answer":"B","marked":"B","explain":"","id":19,"chapter":"行业应用与场景"},{"no":21,"type":"single","stem":"在自动驾驶系统的决策层中，哪个组件负责根据感知数据做出驾驶决策?","options":[{"k":"A","t":"控制单元"},{"k":"B","t":"感知单元"},{"k":"C","t":"决策单元"},{"k":"D","t":"执行单元"}],"answer":"C","marked":"B","explain":"","id":20,"chapter":"行业应用与场景"},{"no":22,"type":"single","stem":"人工智能在机器人产业中，哪项技术对于实现机器人的自主感知和决策至关重要?","options":[{"k":"A","t":"自然语言处理"},{"k":"B","t":"机器学习"},{"k":"C","t":"计算机视觉"},{"k":"D","t":"强化学习"}],"answer":"D","marked":"A","explain":"","id":21,"chapter":"计算机与硬件基础","issue":{"level":"mid","note":"本题与下一题（原题号 23）题干几乎相同，答案却分别是 D（强化学习）和 A（机器学习），两题互相矛盾。强化学习对应“决策”，感知主要靠计算机视觉。建议按“感知+决策=强化学习”记 D，并注意与第 23 题的区别。","suggest":"D（与第 23 题冲突）"}},{"no":23,"type":"single","stem":"人工智能在机器人产业中，通常通过哪种技术来增强机器人的感知和决策能力?","options":[{"k":"A","t":"机器学习"},{"k":"B","t":"虚拟现实"},{"k":"C","t":"区块链"},{"k":"D","t":"量子计算"}],"answer":"A","marked":"A","explain":"","id":22,"chapter":"人工智能基础"},{"no":24,"type":"single","stem":"在人工智能专家系统中，以下哪项技术用于模拟专家的推理过程?","options":[{"k":"A","t":"机器学习"},{"k":"B","t":"规则推理"},{"k":"C","t":"计算机视觉"},{"k":"D","t":"自然语言处理"}],"answer":"B","marked":"D","explain":"","id":23,"chapter":"计算机与硬件基础"},{"no":25,"type":"single","stem":"人工智能专家系统中，用于存储和表示领域专家知识的主要组成部分是?","options":[{"k":"A","t":"数据库"},{"k":"B","t":"推理机"},{"k":"C","t":"知识库"},{"k":"D","t":"用户界面"}],"answer":"C","marked":"C","explain":"","id":24,"chapter":"综合"},{"no":26,"type":"single","stem":"在智能园区中，人工智能被广泛应用于各种场景。以下哪个场景不是人工智能的典型应用?","options":[{"k":"A","t":"手动门禁系统，需要人工操作才能进出"},{"k":"B","t":"自动化停车系统，能够智能识别车牌并引导停车"},{"k":"C","t":"机器人导游，为游客提供园区导览服务"},{"k":"D","t":"智能垃圾桶，能够自动分类和压缩垃圾"}],"answer":"A","marked":"A","explain":"","id":25,"chapter":"人工智能基础"},{"no":27,"type":"single","stem":"在智能园区管理中，以下哪项技术不是用于提高能源使用效率的?","options":[{"k":"A","t":"智能照明系统"},{"k":"B","t":"能源监控和分析软件"},{"k":"C","t":"自动化温控系统"},{"k":"D","t":"人脸识别安全监控系统"}],"answer":"D","marked":"B","explain":"","id":26,"chapter":"行业应用与场景"},{"no":28,"type":"single","stem":"人工智能在农业灌溉管理中的应用，主要是通过哪种方式实现的?","options":[{"k":"A","t":"手动调整灌溉系统"},{"k":"B","t":"预测天气变化来决定灌溉时间"},{"k":"C","t":"依赖农民的经验来判断灌溉需求"},{"k":"D","t":"自动监测土壤湿度并调整灌溉量"}],"answer":"D","marked":"D","explain":"","id":27,"chapter":"行业应用与场景"},{"no":29,"type":"single","stem":"在农业项目中，人工智能主要用于以下哪个方面?","options":[{"k":"A","t":"作物种植"},{"k":"B","t":"病虫害识别与防治"},{"k":"C","t":"农业政策制定"},{"k":"D","t":"农业劳动力管理"}],"answer":"B","marked":"D","explain":"","id":28,"chapter":"职业道德与法规"},{"no":30,"type":"single","stem":"（ ）是民主法治、公平正义、诚信友爱、充满活力、安定有序、人与自然和谐相处的社会，是社会发展的一个目标、愿景，既是目标又是过程。","options":[{"k":"A","t":"幸福社会"},{"k":"B","t":"人文社会"},{"k":"C","t":"法治社会"},{"k":"D","t":"和谐社会"}],"answer":"D","marked":"C","explain":"","id":29,"chapter":"职业道德与法规"},{"no":31,"type":"single","stem":"社会主义道德的核心是（ ）。","options":[{"k":"A","t":"为集体服务"},{"k":"B","t":"为人民服务"},{"k":"C","t":"为大众服务"},{"k":"D","t":"为群体服务"}],"answer":"B","marked":"B","explain":"","id":30,"chapter":"职业道德与法规"},{"no":32,"type":"single","stem":"下列关于“严谨求是”的说法，不正确的是（ ）。","options":[{"k":"A","t":"严谨就是态度严肃谨慎，不胡乱说话"},{"k":"B","t":"慎而思之，勤而行之"},{"k":"C","t":"慎则必成，轻发则多败"},{"k":"D","t":"听了别人的意见后，马上就去改正"}],"answer":"D","marked":"D","explain":"","id":31,"chapter":"职业道德与法规"},{"no":33,"type":"single","stem":"关于“严谨求是”，下列说法错误的是（ ）。","options":[{"k":"A","t":"员工发生打架行为的，直接对双方予以警告处分"},{"k":"B","t":"求实就是讲求实际，客观地或冷静地观察以求得对客观实际的正确认识"},{"k":"C","t":"做学问不可弄虚作假，异想天开，要脚踏实地，实事求是"},{"k":"D","t":"员工之间有矛盾，我们着手实地进行调查，访谈当事人，遵照客观事实，协调解决"}],"answer":"A","marked":"A","explain":"","id":32,"chapter":"职业道德与法规"},{"no":34,"type":"single","stem":"下列关于“遵章守法”的说法，错误的是（ ）。","options":[{"k":"A","t":"公司制订了规章制度，自己带头遵守与执行"},{"k":"B","t":"对新制定的管理制度，向员工进行系统的宣讲"},{"k":"C","t":"公司规定上班期间必须着工作装，自己是领导，星期六加班可以不穿"},{"k":"D","t":"上班路上，十字路口通过红绿灯时，自觉等待绿灯亮起，才安全通过"}],"answer":"C","marked":"C","explain":"","id":33,"chapter":"职业道德与法规"},{"no":35,"type":"single","stem":"下列有关“恪尽职守”的说法，错误的是（ ）。","options":[{"k":"A","t":"完成了工作，就行了，没有必要再进行检查"},{"k":"B","t":"虽然自己的岗位职责上没有明确这件事情由自己负责，但客户前来接洽了，仍负责到底"},{"k":"C","t":"理解岗位规则，创新操作流程，执行行业标准，遵守法律法规"},{"k":"D","t":"坚守道德底线，不受他人的利益的影响"}],"answer":"A","marked":"A","explain":"","id":34,"chapter":"职业道德与法规"},{"no":36,"type":"single","stem":"从业人员在职业技能上“追求卓越”的品质要求不包括（ ）。","options":[{"k":"A","t":"树立远大的奋斗目标"},{"k":"B","t":"自信坚定，持之以恒"},{"k":"C","t":"勇于创新"},{"k":"D","t":"抛弃书本知识和权威"}],"answer":"D","marked":"D","explain":"","id":35,"chapter":"职业道德与法规"},{"no":37,"type":"single","stem":"下列关于人工智能未来发展趋势描述错误的是（ ）。","options":[{"k":"A","t":"人工智能将摆脱人类的控制，并最终毁灭人类"},{"k":"B","t":"人工智能目前仅适用于特定的、专用的问题"},{"k":"C","t":"人工智能受到越来越多的关注，许多国家出台了支持人工智能的战略计划"},{"k":"D","t":"适用人工智能的发展正处于起步阶段"}],"answer":"A","marked":"A","explain":"","id":36,"chapter":"综合"},{"no":38,"type":"single","stem":"以下不属于人工智能应用领域的是（ ）。","options":[{"k":"A","t":"机器翻译"},{"k":"B","t":"CAD 制图"},{"k":"C","t":"人机对话"},{"k":"D","t":"人脸识别"}],"answer":"B","marked":"B","explain":"","id":37,"chapter":"行业应用与场景"},{"no":39,"type":"single","stem":"GPU 又被称为（ ）。","options":[{"k":"A","t":"运算控制器"},{"k":"B","t":"中央处理器"},{"k":"C","t":"存储控制器"},{"k":"D","t":"图形处理器"}],"answer":"D","marked":"A","explain":"","id":38,"chapter":"计算机与硬件基础"},{"no":40,"type":"single","stem":"现代人工智能训练模型过程中，使用 GPU，通常使用了 GPU 的（ ）。","options":[{"k":"A","t":"多线程能力"},{"k":"B","t":"集群运算能力"},{"k":"C","t":"逻辑处理能力"},{"k":"D","t":"大规模并行运算能力"}],"answer":"D","marked":"D","explain":"","id":39,"chapter":"计算机与硬件基础"},{"no":41,"type":"single","stem":"以下（ ）办公软件主要用于创建和编辑文字文档。","options":[{"k":"A","t":"Photoshop"},{"k":"B","t":"Excel"},{"k":"C","t":"PowerPoint"},{"k":"D","t":"Word"}],"answer":"D","marked":"D","explain":"","id":40,"chapter":"办公软件与工具"},{"no":42,"type":"single","stem":"下列（ ）操作系统类型适用于个人计算机。","options":[{"k":"A","t":"实时"},{"k":"B","t":"分时"},{"k":"C","t":"批处理"},{"k":"D","t":"网络"}],"answer":"B","marked":"D","explain":"","id":41,"chapter":"计算机与硬件基础"},{"no":43,"type":"single","stem":"下列（ ）操作系统类型适用于服务器。","options":[{"k":"A","t":"实时"},{"k":"B","t":"分时"},{"k":"C","t":"批处理"},{"k":"D","t":"网络"}],"answer":"D","marked":"C","explain":"","id":42,"chapter":"计算机与硬件基础"},{"no":44,"type":"single","stem":"在产业界和学术界最受欢迎机器学习框架的是（ ）。","options":[{"k":"A","t":"PyTorch、TensorFlow"},{"k":"B","t":"Caffe、Paddlepaddle"},{"k":"C","t":"MXNet、Paddlepaddle"},{"k":"D","t":"MXNet、TensorFlow"}],"answer":"A","marked":"C","explain":"","id":43,"chapter":"人工智能基础"},{"no":45,"type":"single","stem":"我国自有的深度学习框架是（ ）。","options":[{"k":"A","t":"MXNet"},{"k":"B","t":"Paddlepaddle"},{"k":"C","t":"Tensorflow"},{"k":"D","t":"PyTorch"}],"answer":"B","marked":"D","explain":"","id":44,"chapter":"人工智能基础"},{"no":46,"type":"single","stem":"以下所述不属于劳动基本原则作用的是（ ）。","options":[{"k":"A","t":"指导劳动法的制定、修改和废止"},{"k":"B","t":"对劳动法有指导性的作用"},{"k":"C","t":"指导劳动法的实施"},{"k":"D","t":"对于认识劳动法本质有指导意义"}],"answer":"B","marked":"A","explain":"","id":45,"chapter":"职业道德与法规"},{"no":47,"type":"single","stem":"对违反劳动法的行为进行制止、纠正和追究违法行为人法律责任采取（ ）。","options":[{"k":"A","t":"工会和职工民主管理制度"},{"k":"B","t":"劳动争议处制度"},{"k":"C","t":"劳动法的监督检查制度"},{"k":"D","t":"劳动法的制约制度"}],"answer":"C","marked":"C","explain":"","id":46,"chapter":"职业道德与法规"},{"no":48,"type":"single","stem":"根据《网络安全法》的规定，关键信息基础设施的运营者在中华人民共和国境内运营中收集和产生的个人信息和重要数据应当在（ ）。","options":[{"k":"A","t":"境外存储"},{"k":"B","t":"外部存储器储存"},{"k":"C","t":"第三方存储"},{"k":"D","t":"境内存储"}],"answer":"D","marked":"D","explain":"","id":47,"chapter":"安全与合规"},{"no":49,"type":"single","stem":"（ ）不得再许可第三人进行同样的使用。","options":[{"k":"A","t":"独占许可使用"},{"k":"B","t":"排他许可使用"},{"k":"C","t":"普通许可使用"},{"k":"D","t":"授权许可使用"}],"answer":"B","marked":"A","explain":"","id":48,"chapter":"安全与合规","issue":{"level":"mid","note":"独占许可与排他许可都“不得再许可第三人使用”，区别在于许可人自己是否还能使用。题干缺少这一限定，答案唯一性不足。若按“许可人自己仍可使用、但不得再许可他人”界定，则选 B。","suggest":"B（表述不严谨）"}},{"no":50,"type":"single","stem":"计算机软件属于著作权保护的（ ）。","options":[{"k":"A","t":"客体"},{"k":"B","t":"主体"},{"k":"C","t":"主要部分"},{"k":"D","t":"组合"}],"answer":"A","marked":"B","explain":"","id":49,"chapter":"安全与合规"},{"no":51,"type":"single","stem":"选择研发框架的时候不是必须考虑的问题是（ ）。","options":[{"k":"A","t":"生态"},{"k":"B","t":"技术栈"},{"k":"C","t":"授权方式"},{"k":"D","t":"框架开发者"}],"answer":"D","marked":"D","explain":"","id":50,"chapter":"综合"},{"no":52,"type":"single","stem":"下列语音场景中需要用到语音识别的是（ ）。","options":[{"k":"A","t":"会议自动速记"},{"k":"B","t":"声音情感分析"},{"k":"C","t":"文章机器阅读"},{"k":"D","t":"普通话转方言"}],"answer":"A","marked":"B","explain":"","id":51,"chapter":"行业应用与场景"},{"no":53,"type":"single","stem":"数据采集的方法不包括（ ）。","options":[{"k":"A","t":"互联网数据采集"},{"k":"B","t":"众包、行业合作"},{"k":"C","t":"各种传感器数据"},{"k":"D","t":"商业设计"}],"answer":"D","marked":"B","explain":"","id":52,"chapter":"数据采集与清洗"},{"no":54,"type":"single","stem":"（ ）是整个数据标注基本流程的首要环节。","options":[{"k":"A","t":"数据采集"},{"k":"B","t":"数据清洗"},{"k":"C","t":"数据处理"},{"k":"D","t":"数据增强"}],"answer":"A","marked":"A","explain":"","id":53,"chapter":"数据标注"},{"no":55,"type":"single","stem":"点云遇到深度学习之后，能够解决计算机视觉领域的需求，不包括（ ）。","options":[{"k":"A","t":"拟合"},{"k":"B","t":"识别"},{"k":"C","t":"检测"},{"k":"D","t":"跟踪"}],"answer":"A","marked":"D","explain":"","id":54,"chapter":"计算机与硬件基础"},{"no":56,"type":"single","stem":"以下（ ）属于数据采集的工具。","options":[{"k":"A","t":"麦克风、摄像头"},{"k":"B","t":"压力表、标尺"},{"k":"C","t":"温度传感器"},{"k":"D","t":"所有选项都是"}],"answer":"D","marked":"C","explain":"","id":55,"chapter":"数据采集与清洗"},{"no":57,"type":"single","stem":"声纹识别属于（ ）模型。","options":[{"k":"A","t":"降维"},{"k":"B","t":"生成"},{"k":"C","t":"强化"},{"k":"D","t":"判别"}],"answer":"D","marked":"D","explain":"","id":56,"chapter":"综合"},{"no":58,"type":"single","stem":"说话人辨认属于（ ）。","options":[{"k":"A","t":"语音识别"},{"k":"B","t":"语音唤醒"},{"k":"C","t":"声纹识别"},{"k":"D","t":"语音合成"}],"answer":"C","marked":"A","explain":"","id":57,"chapter":"综合"},{"no":59,"type":"single","stem":"“明天出发去北京”，该例子包含了（ ）个命名实体。","options":[{"k":"A","t":"1"},{"k":"B","t":"2"},{"k":"C","t":"3"},{"k":"D","t":"4"}],"answer":"B","marked":"D","explain":"","id":58,"chapter":"综合"},{"no":60,"type":"single","stem":"通过抽取拼接源文档中的关键句子来生成摘要属于（ ）。","options":[{"k":"A","t":"分类式摘要"},{"k":"B","t":"抽取式摘要"},{"k":"C","t":"判别式摘要"},{"k":"D","t":"生成式摘要"}],"answer":"B","marked":"D","explain":"","id":59,"chapter":"办公软件与工具"},{"no":61,"type":"single","stem":"寻找中国人口发展趋势规律曲线，该任务属于（ ）。","options":[{"k":"A","t":"回归任务"},{"k":"B","t":"聚类任务"},{"k":"C","t":"分类任务"},{"k":"D","t":"拟合任务"}],"answer":"D","marked":"B","explain":"","id":60,"chapter":"人工智能基础"},{"no":62,"type":"single","stem":"DALLE 模型的核心组件是（ ）。","options":[{"k":"A","t":"LSTM"},{"k":"B","t":"Transformer"},{"k":"C","t":"GRU"},{"k":"D","t":"BERT"}],"answer":"B","marked":"B","explain":"","id":61,"chapter":"人工智能基础"},{"no":63,"type":"single","stem":"在知识图谱中下列概念不属于关系的是（ ）。","options":[{"k":"A","t":"职位上下级"},{"k":"B","t":"父子"},{"k":"C","t":"朋友"},{"k":"D","t":"人名"}],"answer":"D","marked":"D","explain":"","id":62,"chapter":"人工智能基础"},{"no":64,"type":"single","stem":"智能聊天机器人中使用的主要技术是（ ）。","options":[{"k":"A","t":"文本摘要"},{"k":"B","t":"智能问答"},{"k":"C","t":"实体命名"},{"k":"D","t":"词性标注"}],"answer":"B","marked":"B","explain":"","id":63,"chapter":"数据标注"},{"no":65,"type":"single","stem":"“张三于 2020 年购买了一台计算机”该例子共包含（ ）个命名实体。","options":[{"k":"A","t":"3"},{"k":"B","t":"4"},{"k":"C","t":"5"},{"k":"D","t":"6"}],"answer":"B","marked":"A","explain":"","id":64,"chapter":"计算机与硬件基础","issue":{"level":"mid","note":"句中可辨识实体为：人名“张三”、时间“2020年”、物品“计算机”，共 3 个；答案按 4 个计（把数量短语“一台”也算作实体）。命名实体识别一般不计数量短语，存在争议。","suggest":"A（3 个）"}},{"no":66,"type":"single","stem":"下列不属于常见的命名实体类别的是（ ）。","options":[{"k":"A","t":"人名"},{"k":"B","t":"地名"},{"k":"C","t":"形容词"},{"k":"D","t":"机构名"}],"answer":"C","marked":"D","explain":"","id":65,"chapter":"综合"},{"no":67,"type":"single","stem":"预测 2030 年，中国人口的数量，该任务属于（ ）。","options":[{"k":"A","t":"回归任务"},{"k":"B","t":"聚类任务"},{"k":"C","t":"分类任务"},{"k":"D","t":"拟合任务"}],"answer":"A","marked":"D","explain":"","id":66,"chapter":"人工智能基础"},{"no":68,"type":"single","stem":"一份肿瘤病人数据表格中，对这些病人的病情分为良性，恶性两类，该任务属于（ ）。","options":[{"k":"A","t":"回归任务"},{"k":"B","t":"聚类任务"},{"k":"C","t":"分类任务"},{"k":"D","t":"拟合任务"}],"answer":"C","marked":"C","explain":"","id":67,"chapter":"办公软件与工具"},{"no":69,"type":"single","stem":"下列场景没有应用活体检测技术的是（ ）。","options":[{"k":"A","t":"人脸支付"},{"k":"B","t":"身份认证"},{"k":"C","t":"银行摄像头监控"},{"k":"D","t":"人脸解锁"}],"answer":"C","marked":"B","explain":"","id":68,"chapter":"行业应用与场景"},{"no":70,"type":"single","stem":"下列技术中，可以用于实时监控和预测交通拥堵的是（ ）。","options":[{"k":"A","t":"面部识别"},{"k":"B","t":"目标检测"},{"k":"C","t":"车辆追踪"},{"k":"D","t":"视频编解码"}],"answer":"D","marked":"C","explain":"","id":69,"chapter":"综合","issue":{"level":"high","note":"“视频编解码”只是压缩、还原视频流的技术，不能用于监控和预测交通拥堵；车辆追踪（C）才是交通流监测的常用手段。原答案 D 明显不合理，疑似题库答案错误。","suggest":"C 车辆追踪"}},{"no":71,"type":"single","stem":"下列模型架构不是生成模型的是。（ ）","options":[{"k":"A","t":"GAN"},{"k":"B","t":"Diffusion Model"},{"k":"C","t":"MLP"},{"k":"D","t":"VAE"}],"answer":"C","marked":"D","explain":"","id":70,"chapter":"人工智能基础"},{"no":72,"type":"single","stem":"下列选项中，属于语音数据的异常现象的是（ ）。","options":[{"k":"A","t":"切音"},{"k":"B","t":"模糊音"},{"k":"C","t":"杂音"},{"k":"D","t":"失真"}],"answer":"A","marked":"D","explain":"","id":71,"chapter":"综合"},{"no":73,"type":"single","stem":"下列不属于图像超分辨率应用领域的是（ ）。","options":[{"k":"A","t":"提高摄像头成像画质"},{"k":"B","t":"给黑白照片上色"},{"k":"C","t":"提高老旧照片画质"},{"k":"D","t":"提高老旧电影的分辨率"}],"answer":"B","marked":"D","explain":"","id":72,"chapter":"行业应用与场景"},{"no":74,"type":"single","stem":"ChatGPT 是（ ）公司开发的人工智能对话模型。","options":[{"k":"A","t":"Google"},{"k":"B","t":"Facebook"},{"k":"C","t":"Deepmind"},{"k":"D","t":"OpenAI"}],"answer":"D","marked":"D","explain":"","id":73,"chapter":"综合"},{"no":75,"type":"single","stem":"在一个虚拟现实游戏平台中，为了保障用户体验和平台和谐，以下（ ）业务场景最适合应用视频内容审核技术。","options":[{"k":"A","t":"玩家交友系统"},{"k":"B","t":"销售促销活动"},{"k":"C","t":"在线比赛实况直播"},{"k":"D","t":"游戏道具商城"}],"answer":"C","marked":"A","explain":"","id":74,"chapter":"行业应用与场景"},{"no":76,"type":"single","stem":"下列描述错误的是（ ）。","options":[{"k":"A","t":"数据是由真实值，错误值，误差值三部分组合构成。"},{"k":"B","t":"错误值可以避免"},{"k":"C","t":"误差值不可避免"},{"k":"D","t":"误差值可以避免"}],"answer":"D","marked":"A","explain":"","id":75,"chapter":"综合"},{"no":77,"type":"single","stem":"数据清洗对模型的影响有（ ）。","options":[{"k":"A","t":"提高模型的精度与泛化能力"},{"k":"B","t":"加快模型的推理速度"},{"k":"C","t":"优化模型的结构"},{"k":"D","t":"提高模型的能力天花板"}],"answer":"A","marked":"A","explain":"","id":76,"chapter":"数据采集与清洗"},{"no":78,"type":"single","stem":"100 个样本中，正样本值为 2，负样本值为 1，其中负样本数量为 40，样本的期望为（ ）。","options":[{"k":"A","t":"1"},{"k":"B","t":"1.6"},{"k":"C","t":"2"},{"k":"D","t":"1.5"}],"answer":"B","marked":"B","explain":"","id":77,"chapter":"综合"},{"no":79,"type":"single","stem":"不属于组成结构化数据要素的是（ ）。","options":[{"k":"A","t":"字段"},{"k":"B","t":"值"},{"k":"C","t":"关系"},{"k":"D","t":"图片"}],"answer":"D","marked":"D","explain":"","id":78,"chapter":"综合"},{"no":80,"type":"single","stem":"下列（ ）数据属于独热编码（OneHot）。","options":[{"k":"A","t":"(0, 0, 0)"},{"k":"B","t":"(0, 1, 1)"},{"k":"C","t":"(1, 0, 0)"},{"k":"D","t":"(1, 1, 1)"}],"answer":"C","marked":"B","explain":"","id":79,"chapter":"计算机与硬件基础"},{"no":81,"type":"single","stem":"样本数据为 (5, 6, 7)，使用 MinMax 归一化后的值为（ ）。","options":[{"k":"A","t":"(-1, 0, 1)"},{"k":"B","t":"(0.71, 0.86, 1)"},{"k":"C","t":"(0, 0.5, 1)"},{"k":"D","t":"(1, 1.2, 1.4)"}],"answer":"C","marked":"B","explain":"","id":80,"chapter":"数据采集与清洗"},{"no":82,"type":"single","stem":"下列（ ）音频格式不能被播放器播放。","options":[{"k":"A","t":"pcm"},{"k":"B","t":"wav"},{"k":"C","t":"mp3"},{"k":"D","t":"aac"}],"answer":"A","marked":"D","explain":"","id":81,"chapter":"综合"},{"no":83,"type":"single","stem":"以下（ ）不属于图像数据扩增的目的。","options":[{"k":"A","t":"增加样本数据量"},{"k":"B","t":"增加样本多样性"},{"k":"C","t":"加快模型收敛"},{"k":"D","t":"提高模型泛化指标"}],"answer":"C","marked":"C","explain":"","id":82,"chapter":"模型评估与测试"},{"no":84,"type":"single","stem":"以下（ ）不是图像数据的扩增方式。","options":[{"k":"A","t":"翻转图像"},{"k":"B","t":"覆盖图像"},{"k":"C","t":"缩放图像"},{"k":"D","t":"裁剪图像"}],"answer":"B","marked":"D","explain":"","id":83,"chapter":"综合"},{"no":85,"type":"single","stem":"以下说法，属于图像数据扩展优点的是（ ）。","options":[{"k":"A","t":"图像数据扩展可以帮助模型更好地泛化到新的数据"},{"k":"B","t":"图像数据扩展可以减少模型的训练时间"},{"k":"C","t":"图像数据扩展可以让模型更加稳定和可靠"},{"k":"D","t":"扩大图像数据集可以提高模型的准确率"}],"answer":"A","marked":"A","explain":"","id":84,"chapter":"数据采集与清洗"},{"no":86,"type":"single","stem":"图像颜色空间的变换是指将图像从一种颜色表示方式转换为另一种表示方式的过程。下列选项中，（ ）变换常用于将 RGB 颜色空间转换为灰度图像。","options":[{"k":"A","t":"HSV"},{"k":"B","t":"CMYK"},{"k":"C","t":"YUV"},{"k":"D","t":"LAB"}],"answer":"C","marked":"B","explain":"","id":85,"chapter":"综合"},{"no":87,"type":"single","stem":"图像颜色空间的变换中，以下（ ）变换常用于调节图像的饱和度和色调，而不改变亮度信息。","options":[{"k":"A","t":"YCbCr"},{"k":"B","t":"HSI"},{"k":"C","t":"RGB"},{"k":"D","t":"XYZ"}],"answer":"B","marked":"C","explain":"","id":86,"chapter":"综合"},{"no":88,"type":"single","stem":"图像矩阵数据与变换矩阵 (2,0,0; 0,2,0; 0,0,1) 相乘，图像会（ ）。","options":[{"k":"A","t":"平移"},{"k":"B","t":"旋转"},{"k":"C","t":"错切"},{"k":"D","t":"缩放"}],"answer":"D","marked":"C","explain":"","id":87,"chapter":"综合"},{"no":89,"type":"single","stem":"不是产生高斯白噪音原因的是（ ）。","options":[{"k":"A","t":"图像传感器在拍摄时不够明亮、亮度不够均匀"},{"k":"B","t":"电路各元器件自身噪声和相互影响"},{"k":"C","t":"图像传感器长期工作，温度过高"},{"k":"D","t":"相机分辨率太低"}],"answer":"D","marked":"A","explain":"","id":88,"chapter":"综合"},{"no":90,"type":"single","stem":"下列对误差值与错误值描述错误的是（ ）。","options":[{"k":"A","t":"数据是由真实值，错误值，误差值三部分组合构成"},{"k":"B","t":"错误值不可以消除"},{"k":"C","t":"误差值不可消除"},{"k":"D","t":"错误值可以消除"}],"answer":"B","marked":"D","explain":"","id":89,"chapter":"综合"},{"no":91,"type":"single","stem":"数据是由真实值，错误值，（ ）三部分组合构成。","options":[{"k":"A","t":"最大值"},{"k":"B","t":"误差值"},{"k":"C","t":"最小值"},{"k":"D","t":"均值"}],"answer":"B","marked":"B","explain":"","id":90,"chapter":"综合"},{"no":92,"type":"single","stem":"在视频采集过程中，花屏属于（ ）视频类型。","options":[{"k":"A","t":"问题"},{"k":"B","t":"无效"},{"k":"C","t":"有效"},{"k":"D","t":"合格"}],"answer":"A","marked":"C","explain":"","id":91,"chapter":"数据采集与清洗"},{"no":93,"type":"single","stem":"3D 点云常见处理模型有（ ）。","options":[{"k":"A","t":"Deeplab"},{"k":"B","t":"Yolo"},{"k":"C","t":"Point3D"},{"k":"D","t":"Unet"}],"answer":"C","marked":"C","explain":"","id":92,"chapter":"数据标注"},{"no":94,"type":"single","stem":"以下（ ）选项是数据清洗的主要目的。","options":[{"k":"A","t":"增强数据的安全性"},{"k":"B","t":"提高数据的存储效率"},{"k":"C","t":"解决数据中的错误和异常"},{"k":"D","t":"加速数据的传输速度"}],"answer":"C","marked":"D","explain":"","id":93,"chapter":"数据采集与清洗"},{"no":95,"type":"single","stem":"视频的清晰度分为（ ）和低清。","options":[{"k":"A","t":"超高清"},{"k":"B","t":"高清"},{"k":"C","t":"标准"},{"k":"D","t":"流畅"}],"answer":"B","marked":"B","explain":"","id":94,"chapter":"综合"},{"no":96,"type":"single","stem":"关于数据采集的注意事项，主要包括：（ ），及时沟通，采集质量。","options":[{"k":"A","t":"深度理解"},{"k":"B","t":"工作量"},{"k":"C","t":"采集数据时效性"},{"k":"D","t":"电脑配置"}],"answer":"A","marked":"C","explain":"","id":95,"chapter":"数据采集与清洗"},{"no":97,"type":"single","stem":"图像数据的质量要求，包括（ ）、照片清晰度。","options":[{"k":"A","t":"图片大小"},{"k":"B","t":"色彩饱和度"},{"k":"C","t":"光线的明暗程度"},{"k":"D","t":"图片亮度"}],"answer":"C","marked":"A","explain":"","id":96,"chapter":"综合"},{"no":98,"type":"single","stem":"在执行语音数据标注时，当出现说话人语速过快而导致发音不清楚或吞音的情况，应当判定为（ ）。","options":[{"k":"A","t":"无效语音"},{"k":"B","t":"有效语音"},{"k":"C","t":"可用语音"},{"k":"D","t":"不可用语音"}],"answer":"A","marked":"B","explain":"","id":97,"chapter":"数据标注"},{"no":99,"type":"single","stem":"影响语音数据质量的主要因素包括采样率、采样精度、（ ）。","options":[{"k":"A","t":"采样合格率"},{"k":"B","t":"采样合格数"},{"k":"C","t":"信噪比"},{"k":"D","t":"采样数量"}],"answer":"C","marked":"D","explain":"","id":98,"chapter":"数据采集与清洗"},{"no":100,"type":"single","stem":"影响（ ）质量的主要因素包括采样率、采样精度、信噪比。","options":[{"k":"A","t":"视频数据"},{"k":"B","t":"文本数据"},{"k":"C","t":"图像数据"},{"k":"D","t":"语音数据"}],"answer":"D","marked":"C","explain":"","id":99,"chapter":"数据采集与清洗"},{"no":101,"type":"single","stem":"常规音频标注中听见音频内容为阿拉伯数字“123”，应该标注为（ ）。","options":[{"k":"A","t":"123"},{"k":"B","t":"一二三"},{"k":"C","t":"一百二十三"},{"k":"D","t":"壹佰贰拾叁"}],"answer":"B","marked":"A","explain":"","id":100,"chapter":"数据标注"},{"no":102,"type":"single","stem":"在语音数据标注的基本标注规范中，一般情况下，可将可能出现的噪声划分为四类并记为（ ）。","options":[{"k":"A","t":"ABCD"},{"k":"B","t":"ACER"},{"k":"C","t":"RSPT"},{"k":"D","t":"NSPT"}],"answer":"D","marked":"A","explain":"","id":101,"chapter":"数据标注"},{"no":103,"type":"single","stem":"测试集主要用于（ ）。","options":[{"k":"A","t":"训练模型参数"},{"k":"B","t":"模型训练时候监控训练效果和终止条件"},{"k":"C","t":"评测模型效果"},{"k":"D","t":"设计模型结构"}],"answer":"C","marked":"A","explain":"","id":102,"chapter":"模型训练与调优"},{"no":104,"type":"single","stem":"在机器学习中，交叉验证是指（ ）。","options":[{"k":"A","t":"将数据集分为训练集和测试集，训练模型后只使用测试集进行评估"},{"k":"B","t":"将数据集分为若干个互不相交的子集，逐个子集作为测试集，其他子集作为训练集"},{"k":"C","t":"将数据集分为训练集、验证集和测试集，训练模型后使用验证集进行调参，再使用测试集进行最终评估"},{"k":"D","t":"将数据集分为不同时间段的子集，按时间顺序逐个子集作为测试集，其他子集作为训练集"}],"answer":"B","marked":"C","explain":"","id":103,"chapter":"数据采集与清洗"},{"no":105,"type":"single","stem":"对缺失值进行插补的常用方法之一的是（ ）。","options":[{"k":"A","t":"间隔插补"},{"k":"B","t":"随机插补"},{"k":"C","t":"简单插补"},{"k":"D","t":"同类均值插补"}],"answer":"D","marked":"C","explain":"","id":104,"chapter":"数据采集与清洗"},{"no":106,"type":"single","stem":"下列选项中，属于填补缺失值的常用方法的是（ ）。","options":[{"k":"A","t":"间隔插补"},{"k":"B","t":"均值插补"},{"k":"C","t":"随机插补"},{"k":"D","t":"简单插补"}],"answer":"B","marked":"A","explain":"","id":105,"chapter":"数据采集与清洗"},{"no":107,"type":"single","stem":"真阳率计算公式为（ ）。","options":[{"k":"A","t":"TP/(TP+FN)"},{"k":"B","t":"TP/(FP+TN)"},{"k":"C","t":"FP/(FP+TN)"},{"k":"D","t":"FP/(TP+FN)"}],"answer":"A","marked":"C","explain":"","id":106,"chapter":"模型评估与测试"},{"no":108,"type":"single","stem":"假阳率计算公式为（ ）。","options":[{"k":"A","t":"TP/(TP+FN)"},{"k":"B","t":"TP/(FP+TN)"},{"k":"C","t":"FP/(FP+TN)"},{"k":"D","t":"FP/(TP+FN)"}],"answer":"C","marked":"C","explain":"","id":107,"chapter":"模型评估与测试"},{"no":109,"type":"single","stem":"在一个分类模型中，有 100 个样本，其中 80 个样本被预测为正类，但实际上只有 60 个样本是真正的正类，那么在这种情况下，精度的计算结果是（ ）。","options":[{"k":"A","t":"60%"},{"k":"B","t":"75%"},{"k":"C","t":"80%"},{"k":"D","t":"90%"}],"answer":"B","marked":"C","explain":"","id":108,"chapter":"人工智能基础"},{"no":110,"type":"single","stem":"在一个分类模型中，有 100 个样本，其中 70 个样本被预测为正类，但实际上只有 40 个样本是真正的正类，那么在这种情况下，精度的计算结果是（ ）。","options":[{"k":"A","t":"40%"},{"k":"B","t":"50%"},{"k":"C","t":"60%"},{"k":"D","t":"70%"}],"answer":"C","marked":"B","explain":"","id":109,"chapter":"人工智能基础","issue":{"level":"mid","note":"按题意“精度＝预测为正且实际为正 ÷ 预测为正”＝40/70≈57.1%，选项中没有 57%，答案取 60% 近似。题目数据设计不严谨，考试遇到按 60% 选。","suggest":"C（60%，实际 57.1%）"}},{"no":111,"type":"single","stem":"P-R曲线横轴为（ ）。","options":[{"k":"A","t":"查准率"},{"k":"B","t":"准确率"},{"k":"C","t":"查全率"},{"k":"D","t":"错误率"}],"answer":"A","marked":"C","explain":"","id":110,"chapter":"模型评估与测试","issue":{"level":"high","note":"P-R 曲线的横轴是查全率（Recall），纵轴才是查准率（Precision）。本题答案 A“查准率”与第 112 题（纵轴＝查准率）直接矛盾，横轴应为 C 查全率。","suggest":"C 查全率"}},{"no":112,"type":"single","stem":"P-R曲线纵轴为（ ）。","options":[{"k":"A","t":"准确率"},{"k":"B","t":"查全率"},{"k":"C","t":"查准率"},{"k":"D","t":"错误率"}],"answer":"C","marked":"B","explain":"","id":111,"chapter":"模型评估与测试"},{"no":113,"type":"single","stem":"下列 Nvidia 的计算卡不能用于模型训练的是（ ）。","options":[{"k":"A","t":"Tesla T4"},{"k":"B","t":"Tesla V100"},{"k":"C","t":"GTX 1080"},{"k":"D","t":"RTX 3060"}],"answer":"A","marked":"B","explain":"","id":112,"chapter":"计算机与硬件基础","issue":{"level":"mid","note":"Tesla T4 是数据中心计算卡，虽主打推理但同样可以用于训练，说它“不能用于模型训练”并不严谨；选项里没有真正不能训练的卡。本题区分度差，建议按“T4 为推理卡”应付考试。","suggest":"A（题目不严谨）"}},{"no":114,"type":"single","stem":"（ ）是工业级计算卡。","options":[{"k":"A","t":"Jetson Nano"},{"k":"B","t":"RK 3399 PRO"},{"k":"C","t":"HI 3559A"},{"k":"D","t":"Tesla A100"}],"answer":"D","marked":"B","explain":"","id":113,"chapter":"计算机与硬件基础"},{"no":115,"type":"single","stem":"模型减枝是一种用于提高模型运行效率的技术，它的基本思想是（ ）。","options":[{"k":"A","t":"减少数据集的规模以提高训练速度"},{"k":"B","t":"通过剪枝操作减少模型的参数量和计算复杂度"},{"k":"C","t":"使用更高效的优化算法替代传统的梯度下降算法"},{"k":"D","t":"在模型中增加更多的层和节点"}],"answer":"B","marked":"B","explain":"","id":114,"chapter":"数据采集与清洗"},{"no":116,"type":"single","stem":"用同一种方法，无限的对数据增强，会导致（ ）。","options":[{"k":"A","t":"模型精度越来越高"},{"k":"B","t":"模型推理速度降低"},{"k":"C","t":"模型推理速度加快"},{"k":"D","t":"模型精度不在提高"}],"answer":"D","marked":"C","explain":"","id":115,"chapter":"数据采集与清洗"},{"no":117,"type":"single","stem":"图像处理中的开运算指（ ）。","options":[{"k":"A","t":"先膨胀，在腐蚀"},{"k":"B","t":"先腐蚀，在膨胀"},{"k":"C","t":"先模糊，再锐化"},{"k":"D","t":"先锐化，再模糊"}],"answer":"B","marked":"C","explain":"","id":116,"chapter":"综合"},{"no":118,"type":"single","stem":"对二值图像进行闭运算，会（ ）。","options":[{"k":"A","t":"去掉白色的独立小点"},{"k":"B","t":"会去掉独立的黑色小点"},{"k":"C","t":"会填补白色的小洞"},{"k":"D","t":"会填补黑色的小洞"}],"answer":"D","marked":"B","explain":"","id":117,"chapter":"综合"},{"no":119,"type":"single","stem":"在图像处理中，以下（ ）滤波器常用于边缘检测。","options":[{"k":"A","t":"模糊"},{"k":"B","t":"锐化"},{"k":"C","t":"高斯"},{"k":"D","t":"Sobel"}],"answer":"D","marked":"B","explain":"","id":118,"chapter":"综合"},{"no":120,"type":"single","stem":"下面对模型量化描述正确的是（ ）。","options":[{"k":"A","t":"常见的量化是 Float32"},{"k":"B","t":"量化后的模型在任何计算卡上都能提高性能"},{"k":"C","t":"INT4 量化是指把模型参数使用 4 字节阵型进行计算"},{"k":"D","t":"量化后，通常会使得模型精度有少许的降低"}],"answer":"D","marked":"C","explain":"","id":119,"chapter":"计算机与硬件基础"},{"no":121,"type":"single","stem":"人工智能模型进行边缘端部署的优势描述错误的是（ ）。","options":[{"k":"A","t":"数据处理的实时性更高"},{"k":"B","t":"可以不依赖网络，适合在一些无网络的环境"},{"k":"C","t":"模型版本设计更方便"},{"k":"D","t":"分摊计算，降低服务器的计算压力"}],"answer":"C","marked":"B","explain":"","id":120,"chapter":"计算机与硬件基础"},{"no":122,"type":"single","stem":"当前主流的人工智能模型深度神经网络采用的训练算法是（ ）。","options":[{"k":"A","t":"进化算法"},{"k":"B","t":"牛顿法"},{"k":"C","t":"凸优化"},{"k":"D","t":"反向传播算法"}],"answer":"D","marked":"A","explain":"","id":121,"chapter":"模型训练与调优"},{"no":123,"type":"single","stem":"下面对自监督学习描述正确的是（ ）。","options":[{"k":"A","t":"自监督的样本数据是无标签的"},{"k":"B","t":"自监督的样本数据是有标签的"},{"k":"C","t":"自监督学习过程只有前向推理过程"},{"k":"D","t":"自监督学习过程只有后向计算过程"}],"answer":"A","marked":"C","explain":"","id":122,"chapter":"人工智能基础"},{"no":124,"type":"single","stem":"自监督学习的主要目的是（ ）。","options":[{"k":"A","t":"提高数据质量"},{"k":"B","t":"提高模型对数据自身特征的理解能力"},{"k":"C","t":"提高模型的推理速度"},{"k":"D","t":"提高模型的收敛速度"}],"answer":"B","marked":"D","explain":"","id":123,"chapter":"数据采集与清洗"},{"no":125,"type":"single","stem":"在人工智能训练项目中，用于过滤低质量人脸图像的主要原因是（ ）。","options":[{"k":"A","t":"提高人脸识别准确率"},{"k":"B","t":"减少计算资源消耗"},{"k":"C","t":"提高系统速度和响应时间"},{"k":"D","t":"提高用户体验"}],"answer":"A","marked":"A","explain":"","id":124,"chapter":"模型评估与测试"},{"no":126,"type":"single","stem":"下列场景可使用 OCR 技术的是。（ ）","options":[{"k":"A","t":"猫狗识别"},{"k":"B","t":"车牌识别"},{"k":"C","t":"方言识别"},{"k":"D","t":"二维码识别"}],"answer":"B","marked":"D","explain":"","id":125,"chapter":"行业应用与场景"},{"no":127,"type":"single","stem":"噪声数据处理的常用方法，不包括（ ）。","options":[{"k":"A","t":"分箱"},{"k":"B","t":"回归"},{"k":"C","t":"孤立点分析"},{"k":"D","t":"聚类"}],"answer":"D","marked":"C","explain":"","id":126,"chapter":"人工智能基础"},{"no":128,"type":"single","stem":"数据质量质检的方法可以分为，逐条检查、按比例抽查、抽样检查、（ ）。","options":[{"k":"A","t":"分层抽查"},{"k":"B","t":"机器验证"},{"k":"C","t":"间隔检查"},{"k":"D","t":"样本抽查"}],"answer":"B","marked":"D","explain":"","id":127,"chapter":"数据标注"},{"no":129,"type":"single","stem":"（ ）是数据标注的质量标准。","options":[{"k":"A","t":"合格率"},{"k":"B","t":"准确率"},{"k":"C","t":"查重率"},{"k":"D","t":"完整率"}],"answer":"B","marked":"A","explain":"","id":128,"chapter":"数据标注"},{"no":130,"type":"single","stem":"在人工智能训练项目中，用于评估人脸图像质量的方法包括（ ）。","options":[{"k":"A","t":"直方图均衡化"},{"k":"B","t":"结构化光照评估"},{"k":"C","t":"锐化"},{"k":"D","t":"Haar 特征检测"}],"answer":"B","marked":"D","explain":"","id":129,"chapter":"模型评估与测试"},{"no":131,"type":"single","stem":"人脸闸机中的人脸识别使用到的人工智能技术不可能有（ ）。","options":[{"k":"A","t":"人脸检测"},{"k":"B","t":"人脸特征提取"},{"k":"C","t":"人脸特征对比"},{"k":"D","t":"人脸语义分割"}],"answer":"D","marked":"D","explain":"","id":130,"chapter":"数据标注"},{"no":132,"type":"single","stem":"下面对端到端的描述，错误的是（ ）。","options":[{"k":"A","t":"模型结构设计更灵活容易"},{"k":"B","t":"容易使用多模态输入"},{"k":"C","t":"容易解释模型工作过程"},{"k":"D","t":"不需要人工提取数据特征"}],"answer":"C","marked":"D","explain":"","id":131,"chapter":"综合"},{"no":133,"type":"single","stem":"编解码网络结构工作原理是（ ）。","options":[{"k":"A","t":"特征 -> 输入 -> 输出"},{"k":"B","t":"输入 -> 特征 -> 输出"},{"k":"C","t":"输入 -> 输出"},{"k":"D","t":"所有选项都不是"}],"answer":"B","marked":"B","explain":"","id":132,"chapter":"综合"},{"no":134,"type":"single","stem":"在视频数据采集中，视频突然前进到未来某时间，中间一段时间丢失表示（ ）。","options":[{"k":"A","t":"视频无效"},{"k":"B","t":"视频丢失"},{"k":"C","t":"视频跳跃"},{"k":"D","t":"视频损坏"}],"answer":"C","marked":"C","explain":"","id":133,"chapter":"数据采集与清洗"},{"no":135,"type":"single","stem":"（ ）属于语音数据的异常现象。","options":[{"k":"A","t":"模糊音"},{"k":"B","t":"杂音"},{"k":"C","t":"失真"},{"k":"D","t":"重音"}],"answer":"D","marked":"C","explain":"","id":134,"chapter":"综合","issue":{"level":"high","note":"按本套题库第 276 题的标准，“重音”“切音”“喷麦”“丢帧”都属于语音数据异常；而本题的模糊音、杂音、失真同样是异常现象——四个选项全都成立，题目本身有缺陷。答案 D 与题干“属于异常现象”不能唯一对应。","suggest":"题目有缺陷，四选项皆可"}},{"no":136,"type":"single","stem":"（ ）是语音数据的异常现象。","options":[{"k":"A","t":"模糊音"},{"k":"B","t":"喷麦"},{"k":"C","t":"杂音"},{"k":"D","t":"失真"}],"answer":"B","marked":"B","explain":"","id":135,"chapter":"综合"},{"no":137,"type":"single","stem":"在数据采集的语音段中，说话人发音时语气夸张，故意“怪里怪气”地朗读，则该段语音应判定为（ ）。","options":[{"k":"A","t":"错误语音"},{"k":"B","t":"有效语音"},{"k":"C","t":"合格语音"},{"k":"D","t":"无效语音"}],"answer":"D","marked":"B","explain":"","id":136,"chapter":"数据采集与清洗"},{"no":138,"type":"single","stem":"文本实体标注的质检包括实体质检和（ ）质检。","options":[{"k":"A","t":"实体关系"},{"k":"B","t":"实体数据"},{"k":"C","t":"虚拟关系"},{"k":"D","t":"虚拟数据"}],"answer":"A","marked":"A","explain":"","id":137,"chapter":"数据标注"},{"no":139,"type":"single","stem":"关于文本实体标注的质检，质检不合格时，标注内容项将显示为（ ）。","options":[{"k":"A","t":"蓝色"},{"k":"B","t":"红色"},{"k":"C","t":"绿色"},{"k":"D","t":"黄色"}],"answer":"B","marked":"B","explain":"","id":138,"chapter":"数据标注"},{"no":140,"type":"single","stem":"关于数据压缩描述中，正确的是（ ）。","options":[{"k":"A","t":"多媒体信息存在许多数据冗余"},{"k":"B","t":"图像压缩不允许采用有损压缩"},{"k":"C","t":"熵编码法属于有损压缩"},{"k":"D","t":"国标标准大多采用单一压缩方法"}],"answer":"A","marked":"D","explain":"","id":139,"chapter":"计算机与硬件基础"},{"no":141,"type":"single","stem":"循环神经网络（Recurrent Neural Network，RNN）是一种常用的人工智能模型，关于循环神经网络结构的设计方法，以下选项正确的是（ ）。","options":[{"k":"A","t":"双向循环神经网络（Bidirectional RNN）"},{"k":"B","t":"卷积神经网络（Convolutional Neural Network）"},{"k":"C","t":"自编码器（Autoencoder）"},{"k":"D","t":"多层感知机（Multilayer Perceptron）"}],"answer":"A","marked":"A","explain":"","id":140,"chapter":"计算机与硬件基础"},{"no":142,"type":"single","stem":"VGG16 的主要子网络是（ ）。","options":[{"k":"A","t":"RNN"},{"k":"B","t":"CNN"},{"k":"C","t":"MLP"},{"k":"D","t":"GNN"}],"answer":"B","marked":"B","explain":"","id":141,"chapter":"人工智能基础"},{"no":143,"type":"single","stem":"下面对感受野描述错误的是（ ）。","options":[{"k":"A","t":"感受野越大，计算越慢"},{"k":"B","t":"感受野越小，计算越慢"},{"k":"C","t":"感受野越大，效果越好"},{"k":"D","t":"感受野模仿的人类视觉系统"}],"answer":"A","marked":"B","explain":"","id":142,"chapter":"综合","issue":{"level":"high","note":"“感受野越小，计算越慢”才是明显错误的描述（卷积核小、感受野小，计算量反而更小）；“感受野越大，计算越慢”基本成立。原答案 A 与选项逻辑矛盾，应选 B。","suggest":"B"}},{"no":144,"type":"single","stem":"下列（ ）模型不是强化学习模型。","options":[{"k":"A","t":"DQN"},{"k":"B","t":"AC"},{"k":"C","t":"PG"},{"k":"D","t":"GAN"}],"answer":"D","marked":"D","explain":"","id":143,"chapter":"人工智能基础"},{"no":145,"type":"single","stem":"3D 点云数据的优势在于能够很好地表征物体的（ ）和一些深度信息。","options":[{"k":"A","t":"浅层信息"},{"k":"B","t":"表面信息"},{"k":"C","t":"优势信息"},{"k":"D","t":"劣势信息"}],"answer":"B","marked":"C","explain":"","id":144,"chapter":"数据标注"},{"no":146,"type":"single","stem":"人工智能产品采用 C/S 架构，其中 C 代表（ ）。","options":[{"k":"A","t":"客户端"},{"k":"B","t":"网页端"},{"k":"C","t":"服务端"},{"k":"D","t":"数据端"}],"answer":"A","marked":"B","explain":"","id":145,"chapter":"综合"},{"no":147,"type":"single","stem":"模型部署前，需要对模型进行量化，量化的目的是（ ）。","options":[{"k":"A","t":"加快模型推理速度"},{"k":"B","t":"减小模型参数量"},{"k":"C","t":"模型训练加快收敛"},{"k":"D","t":"提高模型预测精度"}],"answer":"A","marked":"A","explain":"","id":146,"chapter":"模型训练与调优"},{"no":148,"type":"single","stem":"模型采用 WEB 部署方式提供服务，它的优势描述错误的是（ ）。","options":[{"k":"A","t":"模型升级只需要升级服务端"},{"k":"B","t":"数据更安全"},{"k":"C","t":"模型计算在服务端"},{"k":"D","t":"模型计算在本地客户端"}],"answer":"D","marked":"A","explain":"","id":147,"chapter":"综合"},{"no":149,"type":"single","stem":"模型部署点多，需要分摊服务器计算压力，合理的部署方式是（ ）。","options":[{"k":"A","t":"边缘部署"},{"k":"B","t":"云端部署"},{"k":"C","t":"移动端部署"},{"k":"D","t":"所有选项都不合理"}],"answer":"A","marked":"A","explain":"","id":148,"chapter":"计算机与硬件基础"},{"no":150,"type":"single","stem":"视频标注准确率通常用于衡量什么？","options":[{"k":"A","t":"视频播放速度"},{"k":"B","t":"视频压缩效率"},{"k":"C","t":"视频分辨率"},{"k":"D","t":"标注结果与真实情况的一致性"}],"answer":"D","marked":"A","explain":"","id":149,"chapter":"数据标注"},{"no":151,"type":"single","stem":"视频追踪标注的主要目的是什么？","options":[{"k":"A","t":"识别并跟踪视频中的特定物体"},{"k":"B","t":"提高视频清晰度"},{"k":"C","t":"增强视频色彩"},{"k":"D","t":"改变视频背景"}],"answer":"A","marked":"A","explain":"","id":150,"chapter":"数据标注"},{"no":152,"type":"single","stem":"在视频数据标注流程中，以下哪个步骤通常最先进行？","options":[{"k":"A","t":"视频导入"},{"k":"B","t":"视频预处理"},{"k":"C","t":"物体标注"},{"k":"D","t":"数据导出"}],"answer":"A","marked":"A","explain":"","id":151,"chapter":"数据标注"},{"no":153,"type":"single","stem":"在视频追踪中，以下哪个步骤涉及到对物体在连续帧之间的位置进行匹配？","options":[{"k":"A","t":"物体检测"},{"k":"B","t":"轨迹初始化"},{"k":"C","t":"轨迹关联"},{"k":"D","t":"轨迹终止"}],"answer":"C","marked":"D","explain":"","id":152,"chapter":"综合"},{"no":154,"type":"single","stem":"视频追踪的主要目的是什么？","options":[{"k":"A","t":"提高视频帧率"},{"k":"B","t":"识别视频中的物体"},{"k":"C","t":"分析视频内容"},{"k":"D","t":"预测视频未来内容"}],"answer":"B","marked":"B","explain":"","id":153,"chapter":"综合"},{"no":155,"type":"single","stem":"以下哪个术语用于描述视频标注工具中用于标记和识别视频内容的工具或功能？","options":[{"k":"A","t":"标注器"},{"k":"B","t":"编码器"},{"k":"C","t":"解码器"},{"k":"D","t":"播放器"}],"answer":"A","marked":"A","explain":"","id":154,"chapter":"计算机与硬件基础"},{"no":156,"type":"single","stem":"在视频标注工具中，“帧”指的是什么？","options":[{"k":"A","t":"视频的一段时间"},{"k":"B","t":"视频的一个画面"},{"k":"C","t":"视频的一个音频片段"},{"k":"D","t":"视频的一个编码单位"}],"answer":"B","marked":"A","explain":"","id":155,"chapter":"计算机与硬件基础"},{"no":157,"type":"single","stem":"视频标注工具主要用于以下哪个方面？","options":[{"k":"A","t":"视频剪辑"},{"k":"B","t":"视频播放"},{"k":"C","t":"视频内容分析"},{"k":"D","t":"视频格式转换"}],"answer":"C","marked":"C","explain":"","id":156,"chapter":"数据标注"},{"no":158,"type":"single","stem":"以下哪项不是视频标注工具的核心功能？","options":[{"k":"A","t":"物体标注"},{"k":"B","t":"语音识别"},{"k":"C","t":"视频预览"},{"k":"D","t":"数据导出"}],"answer":"B","marked":"C","explain":"","id":157,"chapter":"数据标注"},{"no":159,"type":"single","stem":"视频源数据管理中，数据备份的主要目的是什么？","options":[{"k":"A","t":"提高数据处理速度"},{"k":"B","t":"保证数据安全性"},{"k":"C","t":"降低数据存储成本"},{"k":"D","t":"提升数据可视化效果"}],"answer":"B","marked":"B","explain":"","id":158,"chapter":"安全与合规"},{"no":160,"type":"single","stem":"在视频源数据管理中，以下哪项不是常见的数据存储方式？","options":[{"k":"A","t":"本地存储"},{"k":"B","t":"云存储"},{"k":"C","t":"流式存储"},{"k":"D","t":"纸质存储"}],"answer":"D","marked":"A","explain":"","id":159,"chapter":"综合"},{"no":161,"type":"single","stem":"在视频标注中，以下哪种信息通常不会被包含在标注标签中？","options":[{"k":"A","t":"物体类别"},{"k":"B","t":"物体位置"},{"k":"C","t":"视频时长"},{"k":"D","t":"物体颜色"}],"answer":"C","marked":"D","explain":"","id":160,"chapter":"数据标注"},{"no":162,"type":"single","stem":"视频标注标签中的“行为”标签通常用于描述什么？","options":[{"k":"A","t":"视频的背景音乐"},{"k":"B","t":"视频中的物体运动"},{"k":"C","t":"视频中的人物情感"},{"k":"D","t":"视频的拍摄技巧"}],"answer":"B","marked":"B","explain":"","id":161,"chapter":"数据标注"},{"no":163,"type":"single","stem":"在视频标注任务中，对于人物行为的标注通常涉及哪些方面？","options":[{"k":"A","t":"人物的衣着"},{"k":"B","t":"人物的情感"},{"k":"C","t":"人物的动作"},{"k":"D","t":"人物的对话"}],"answer":"C","marked":"C","explain":"","id":162,"chapter":"数据标注"},{"no":164,"type":"single","stem":"视频标注任务中，以下哪项内容通常不是标注的重点？","options":[{"k":"A","t":"物体检测与跟踪"},{"k":"B","t":"语音转写与识别"},{"k":"C","t":"视频场景分类"},{"k":"D","t":"视频帧率调整"}],"answer":"D","marked":"D","explain":"","id":163,"chapter":"数据标注"},{"no":165,"type":"single","stem":"图像数据和视频数据在以下哪个方面存在显著的差异？","options":[{"k":"A","t":"数据结构"},{"k":"B","t":"数据表现形式"},{"k":"C","t":"数据处理方法"},{"k":"D","t":"数据存储需求"}],"answer":"B","marked":"C","explain":"","id":164,"chapter":"综合"},{"no":166,"type":"single","stem":"在对比图像数据和视频数据时，以下哪个方面通常不是比较的重点？","options":[{"k":"A","t":"数据采集成本"},{"k":"B","t":"数据量大小"},{"k":"C","t":"处理速度"},{"k":"D","t":"数据维度"}],"answer":"A","marked":"D","explain":"","id":165,"chapter":"数据采集与清洗"},{"no":167,"type":"single","stem":"视频数据在以下哪个行业中的应用最为广泛？","options":[{"k":"A","t":"医疗保健"},{"k":"B","t":"社交媒体"},{"k":"C","t":"航空航天"},{"k":"D","t":"金融服务"}],"answer":"B","marked":"C","explain":"","id":166,"chapter":"行业应用与场景"},{"no":168,"type":"single","stem":"以下哪个场景不是视频数据的主要应用领域？","options":[{"k":"A","t":"监控安全"},{"k":"B","t":"在线教育"},{"k":"C","t":"音频编辑"},{"k":"D","t":"虚拟现实"}],"answer":"C","marked":"B","explain":"","id":167,"chapter":"行业应用与场景"},{"no":169,"type":"single","stem":"视频数据标注在以下哪个场景中最为重要？","options":[{"k":"A","t":"视频压缩"},{"k":"B","t":"视频播放"},{"k":"C","t":"视频格式转换"},{"k":"D","t":"视频内容分析"}],"answer":"D","marked":"A","explain":"","id":168,"chapter":"数据标注"},{"no":170,"type":"single","stem":"视频数据标注对于以下哪项技术有直接的促进作用？","options":[{"k":"A","t":"语音识别"},{"k":"B","t":"图像识别"},{"k":"C","t":"深度学习"},{"k":"D","t":"自然语言处理"}],"answer":"C","marked":"B","explain":"","id":169,"chapter":"数据标注"},{"no":171,"type":"single","stem":"数据标注流程中，哪一步骤的目的是确保标注数据的质量和准确性？","options":[{"k":"A","t":"数据收集"},{"k":"B","t":"质量控制"},{"k":"C","t":"数据标注"},{"k":"D","t":"数据整合"}],"answer":"B","marked":"C","explain":"","id":170,"chapter":"数据标注"},{"no":172,"type":"single","stem":"在数据标注流程中，以下哪个步骤通常发生在数据收集之后？","options":[{"k":"A","t":"数据标注"},{"k":"B","t":"数据清洗"},{"k":"C","t":"数据导入"},{"k":"D","t":"数据预处理"}],"answer":"A","marked":"D","explain":"","id":171,"chapter":"数据标注"},{"no":173,"type":"single","stem":"在数据标注团队中，通常哪个角色负责监督和管理整个标注过程？","options":[{"k":"A","t":"数据分析师"},{"k":"B","t":"数据标注员"},{"k":"C","t":"质量控制专员"},{"k":"D","t":"项目经理"}],"answer":"D","marked":"C","explain":"","id":172,"chapter":"数据标注"},{"no":174,"type":"single","stem":"在数据标注过程中，以下哪个角色负责定义和制定标注规范？","options":[{"k":"A","t":"数据标注员"},{"k":"B","t":"项目经理"},{"k":"C","t":"数据科学家"},{"k":"D","t":"数据标注指导者"}],"answer":"D","marked":"D","explain":"","id":173,"chapter":"数据标注"},{"no":175,"type":"single","stem":"在3D点云标注流程中，点云分割的主要目的是什么？","options":[{"k":"A","t":"提高标注效率"},{"k":"B","t":"修正点云数据"},{"k":"C","t":"确定物体的类别"},{"k":"D","t":"改善点云数据的可视化效果"}],"answer":"C","marked":"D","explain":"","id":174,"chapter":"数据标注"},{"no":176,"type":"single","stem":"在3D点云标注流程中，以下哪一步骤通常最先进行？","options":[{"k":"A","t":"数据导入"},{"k":"B","t":"数据预处理"},{"k":"C","t":"点云分割"},{"k":"D","t":"语义标注"}],"answer":"A","marked":"A","explain":"","id":175,"chapter":"数据标注"},{"no":177,"type":"single","stem":"在客服语音数据标注的质检过程中，以下哪项不是常见的质检内容？","options":[{"k":"A","t":"语音的音质清晰度"},{"k":"B","t":"标注者的专业性"},{"k":"C","t":"标注的及时性"},{"k":"D","t":"语音转录的准确性"}],"answer":"C","marked":"B","explain":"","id":176,"chapter":"数据标注"},{"no":178,"type":"single","stem":"对于客服语音数据标注的质检，以下哪种方法最能有效发现标注错误？","options":[{"k":"A","t":"随机抽样检查"},{"k":"B","t":"仅依赖自动化工具"},{"k":"C","t":"依赖于单一质检员"},{"k":"D","t":"多轮多人交叉质检"}],"answer":"D","marked":"C","explain":"","id":177,"chapter":"数据标注"},{"no":179,"type":"single","stem":"数据标注验收时，发现部分数据存在标注错误，以下哪种处理方式最为恰当？","options":[{"k":"A","t":"忽略错误，认为不影响整体质量"},{"k":"B","t":"退回到标注者重新标注"},{"k":"C","t":"手动修正错误标注"},{"k":"D","t":"使用自动化工具修正错误标注"}],"answer":"B","marked":"D","explain":"","id":178,"chapter":"数据标注"},{"no":180,"type":"single","stem":"在数据标注的验收过程中，以下哪项不是常见的验收标准？","options":[{"k":"A","t":"标注数据的准确性"},{"k":"B","t":"标注数据的一致性"},{"k":"C","t":"标注者的经验水平"},{"k":"D","t":"标注数据的完整性"}],"answer":"C","marked":"D","explain":"","id":179,"chapter":"数据标注"},{"no":181,"type":"single","stem":"在3D点云标注过程中，以下哪项不是CloudCompare工具所能提供的功能？","options":[{"k":"A","t":"点云可视化"},{"k":"B","t":"点云分割"},{"k":"C","t":"语义标注"},{"k":"D","t":"2D图像标注"}],"answer":"D","marked":"C","explain":"","id":180,"chapter":"数据标注"},{"no":182,"type":"single","stem":"以下哪个工具专门用于3D点云数据的标注？","options":[{"k":"A","t":"LabelImg"},{"k":"B","t":"CloudCompare"},{"k":"C","t":"MATLAB"},{"k":"D","t":"TensorFlow Object Detection API"}],"answer":"B","marked":"B","explain":"","id":181,"chapter":"数据标注"},{"no":183,"type":"single","stem":"如果在阅读理解标注的质检中发现多个标注者对同一问题给出了不同的答案，以下哪种做法最为合适？","options":[{"k":"A","t":"以多数人的答案为准"},{"k":"B","t":"重新标注该问题并重新评估"},{"k":"C","t":"忽略该问题，认为它不影响整体质量"},{"k":"D","t":"保留所有答案，认为多样性是优点"}],"answer":"B","marked":"B","explain":"","id":182,"chapter":"数据标注"},{"no":184,"type":"single","stem":"在进行阅读理解标注的质检时，以下哪项不是评估标注质量的标准？","options":[{"k":"A","t":"标注的一致性"},{"k":"B","t":"标注的准确性"},{"k":"C","t":"标注者的速度"},{"k":"D","t":"标注的完整性"}],"answer":"C","marked":"D","explain":"","id":183,"chapter":"数据标注"},{"no":185,"type":"single","stem":"词性关系标注的质检过程中，如果发现标注数据中存在大量的“动词-名词”错误关系标注为“动词-形容词”，这通常意味着什么问题？","options":[{"k":"A","t":"标注工具出现故障"},{"k":"B","t":"标注者理解错误"},{"k":"C","t":"数据来源不准确"},{"k":"D","t":"标注标准不清晰"}],"answer":"B","marked":"B","explain":"","id":184,"chapter":"数据标注"},{"no":186,"type":"single","stem":"在进行词性关系标注的质检时，以下哪项不是常见的检查内容？","options":[{"k":"A","t":"标注的一致性"},{"k":"B","t":"标注的完整性"},{"k":"C","t":"标注的准确性"},{"k":"D","t":"标注者的背景"}],"answer":"D","marked":"D","explain":"","id":185,"chapter":"数据标注"},{"no":187,"type":"single","stem":"在文本数据标注过程中，哪个工具提供了直观的图形界面和丰富的标注功能？","options":[{"k":"A","t":"Tesseract OCR"},{"k":"B","t":"TextBlob"},{"k":"C","t":"brat rapid annotation tool"},{"k":"D","t":"NLTK"}],"answer":"C","marked":"D","explain":"","id":186,"chapter":"数据标注"},{"no":188,"type":"single","stem":"以下哪个工具常用于文本数据标注，并支持多种标注任务？","options":[{"k":"A","t":"Microsoft Excel"},{"k":"B","t":"Doccano"},{"k":"C","t":"Trello"},{"k":"D","t":"Evernote"}],"answer":"B","marked":"C","explain":"","id":187,"chapter":"办公软件与工具"},{"no":189,"type":"single","stem":"在开源文本标注工具中，哪个工具特别适用于命名实体识别的标注工作？","options":[{"k":"A","t":"Prodigy"},{"k":"B","t":"spaCy"},{"k":"C","t":"Apache OpenNLP"},{"k":"D","t":"GATE"}],"answer":"A","marked":"C","explain":"","id":188,"chapter":"数据标注"},{"no":190,"type":"single","stem":"以下哪个工具是开源的，并且通常用于文本数据的标注？","options":[{"k":"A","t":"brat"},{"k":"B","t":"Google Annotator"},{"k":"C","t":"IBM Watson"},{"k":"D","t":"Microsoft Azure Custom Vision"}],"answer":"A","marked":"D","explain":"","id":189,"chapter":"数据标注"},{"no":191,"type":"single","stem":"在文本分类任务中，以下哪种标注方法用于区分文本所属的类别？","options":[{"k":"A","t":"主题标注"},{"k":"B","t":"命名实体识别"},{"k":"C","t":"词性标注"},{"k":"D","t":"语义角色标注"}],"answer":"A","marked":"C","explain":"","id":190,"chapter":"数据标注"},{"no":192,"type":"single","stem":"文本数据标注中，以下哪项不属于常见的标注类型？","options":[{"k":"A","t":"命名实体识别"},{"k":"B","t":"情感分析"},{"k":"C","t":"语义角色标注"},{"k":"D","t":"语音识别"}],"answer":"D","marked":"D","explain":"","id":191,"chapter":"数据标注"},{"no":193,"type":"single","stem":"在评估语音数据标注的准确率时，以下哪个指标是不常用的？","options":[{"k":"A","t":"标注速度"},{"k":"B","t":"准确率"},{"k":"C","t":"召回率"},{"k":"D","t":"F1分数"}],"answer":"A","marked":"D","explain":"","id":192,"chapter":"数据标注"},{"no":194,"type":"single","stem":"在进行语音数据标注结果的质量检查时，以下哪项不是常用的检查方法？","options":[{"k":"A","t":"人工抽查"},{"k":"B","t":"自动比对工具"},{"k":"C","t":"交叉验证"},{"k":"D","t":"仅依赖标注工具的内置检查功能"}],"answer":"D","marked":"D","explain":"","id":193,"chapter":"数据标注"},{"no":195,"type":"single","stem":"在选择语音数据标注工具时，以下哪个因素不是需要考虑的？","options":[{"k":"A","t":"工具对多种音频格式的支持程度"},{"k":"B","t":"工具的用户界面是否友好"},{"k":"C","t":"工具是否能提供实时语音转文字功能"},{"k":"D","t":"工具的价格是否昂贵"}],"answer":"D","marked":"D","explain":"","id":194,"chapter":"数据标注"},{"no":196,"type":"single","stem":"在语音数据标注过程中，以下哪个工具不是用于音频文件处理的？","options":[{"k":"A","t":"Audacity"},{"k":"B","t":"PRAAT"},{"k":"C","t":"Microsoft Word"},{"k":"D","t":"Adobe Audition"}],"answer":"C","marked":"C","explain":"","id":195,"chapter":"办公软件与工具"},{"no":197,"type":"single","stem":"在视频数据标注工具中，以下哪种工具通常用于情感分析任务？","options":[{"k":"A","t":"框选标注工具"},{"k":"B","t":"关键帧标注工具"},{"k":"C","t":"情绪表情标注工具"},{"k":"D","t":"语音识别工具"}],"answer":"C","marked":"C","explain":"","id":196,"chapter":"数据标注"},{"no":198,"type":"single","stem":"在视频数据标注工具中，以下哪项功能不是常见的标注工具所具备的？","options":[{"k":"A","t":"timestamp 标注"},{"k":"B","t":"文本信息标注"},{"k":"C","t":"角色动作标注"},{"k":"D","t":"视频剪辑功能"}],"answer":"D","marked":"A","explain":"","id":197,"chapter":"数据标注"},{"no":199,"type":"single","stem":"在图像数据标注工具中，以下哪种工具通常用于人像分割任务？","options":[{"k":"A","t":"点标注工具"},{"k":"B","t":"边界框标注工具"},{"k":"C","t":"遮罩标注工具"},{"k":"D","t":"热力图标注工具"}],"answer":"C","marked":"B","explain":"","id":198,"chapter":"数据标注"},{"no":200,"type":"single","stem":"在图像数据标注工具中，以下哪项功能不是常见的标注工具所具备的？","options":[{"k":"A","t":"绘制矩形框"},{"k":"B","t":"标注文本信息"},{"k":"C","t":"创建多边形"},{"k":"D","t":"自动标注"}],"answer":"D","marked":"C","explain":"","id":199,"chapter":"数据标注"},{"no":201,"type":"single","stem":"在图片采集标注项目中，对于物体检测任务，以下哪种做法是正确的？","options":[{"k":"A","t":"仅标注物体的中心位置"},{"k":"B","t":"标注物体的四边形边界框"},{"k":"C","t":"标注物体的圆形边界框"},{"k":"D","t":"标注物体的颜色"}],"answer":"B","marked":"C","explain":"","id":200,"chapter":"数据标注"},{"no":202,"type":"single","stem":"在图片采集标注项目中，以下哪项是衡量标注质量的关键指标？","options":[{"k":"A","t":"标注的完整性"},{"k":"B","t":"标注的准确性"},{"k":"C","t":"标注的一致性"},{"k":"D","t":"标注的时效性"}],"answer":"B","marked":"B","explain":"","id":201,"chapter":"数据标注"},{"no":203,"type":"single","stem":"在视频数据标注质检过程中，以下哪种方法可以用来计算标注的合格率？","options":[{"k":"A","t":"手动检查所有标注"},{"k":"B","t":"随机抽取一定比例的标注进行检查"},{"k":"C","t":"使用自动质检工具进行检查"},{"k":"D","t":"仅根据标注的一致性计算合格率"}],"answer":"B","marked":"D","explain":"","id":202,"chapter":"数据标注"},{"no":204,"type":"single","stem":"在视频数据标注质检时，如果一个视频的长度为10分钟，质检人员需要检查的标注时长通常是整个视频的多少百分比？","options":[{"k":"A","t":"0.05"},{"k":"B","t":"0.1"},{"k":"C","t":"0.2"},{"k":"D","t":"1"}],"answer":"D","marked":"A","explain":"","id":203,"chapter":"数据标注","issue":{"level":"mid","note":"选项 0.05/0.1/0.2/1 表示比例，答案 1 即“100% 全检”。实际项目质检通常按 10%~20% 抽检，题干缺少“全检／抽检”限定，答案存疑。","suggest":"D（1＝100%，表述不严谨）"}},{"no":205,"type":"single","stem":"在语音数据标注中，对于关键词检测任务，以下哪种做法是错误的？","options":[{"k":"A","t":"仅标注关键词的开始和结束时间"},{"k":"B","t":"标注关键词的持续时间"},{"k":"C","t":"标注关键词的音高变化"},{"k":"D","t":"标注关键词的强度变化"}],"answer":"A","marked":"C","explain":"","id":204,"chapter":"数据标注"},{"no":206,"type":"single","stem":"在语音数据标注项目中，以下哪种类型的错误最可能导致标注的准确性下降？","options":[{"k":"A","t":"标注人员听力不佳"},{"k":"B","t":"环境噪声干扰"},{"k":"C","t":"标注指南不明确"},{"k":"D","t":"语音信号弱"}],"answer":"C","marked":"C","explain":"","id":205,"chapter":"数据标注"},{"no":207,"type":"single","stem":"在进行互联网数据采集时，以下（ ）方法更安全。","options":[{"k":"A","t":"使用爬虫程序自动抓取数据"},{"k":"B","t":"购买第三方数据"},{"k":"C","t":"手动输入数据"},{"k":"D","t":"通过API接口获取数据"}],"answer":"D","marked":"D","explain":"","id":206,"chapter":"数据采集与清洗"},{"no":208,"type":"single","stem":"在进行互联网数据采集时，以下（ ）方法更有效。","options":[{"k":"A","t":"手动输入数据"},{"k":"B","t":"使用爬虫程序自动抓取数据"},{"k":"C","t":"通过API接口获取数据"},{"k":"D","t":"购买第三方数据"}],"answer":"B","marked":"C","explain":"","id":207,"chapter":"数据采集与清洗"},{"no":209,"type":"single","stem":"数据输入模型前，需要通过软件工具对数据数量进行扩充，这个过程属于（ ）。","options":[{"k":"A","t":"数据采集"},{"k":"B","t":"数据清洗"},{"k":"C","t":"数据标注"},{"k":"D","t":"数据增强"}],"answer":"D","marked":"D","explain":"","id":208,"chapter":"数据标注"},{"no":210,"type":"single","stem":"数据输入模型前，把无效的数据或质量差的数据去掉，这个过程属于（ ）。","options":[{"k":"A","t":"数据采集"},{"k":"B","t":"数据清洗"},{"k":"C","t":"数据标注"},{"k":"D","t":"数据增强"}],"answer":"B","marked":"B","explain":"","id":209,"chapter":"数据标注"},{"no":211,"type":"single","stem":"国家实行劳动者每日工作时间不超过（ ）小时。","options":[{"k":"A","t":"8"},{"k":"B","t":"9"},{"k":"C","t":"10"},{"k":"D","t":"6"}],"answer":"A","marked":"A","explain":"","id":210,"chapter":"职业道德与法规"},{"no":212,"type":"single","stem":"人工智能训练师培训中，学员独立学习并从自学过程中获取知识的指导类型是（ ）。","options":[{"k":"A","t":"讲座式指导"},{"k":"B","t":"观摩式指导"},{"k":"C","t":"实操式指导"},{"k":"D","t":"自学式指导"}],"answer":"D","marked":"D","explain":"","id":211,"chapter":"模型训练与调优"},{"no":213,"type":"single","stem":"不属于PaddlePaddle优势的是（ ）。","options":[{"k":"A","t":"开发便捷的深度学习框架"},{"k":"B","t":"超大规模深度学习模型训练技术"},{"k":"C","t":"多端多平台部署的高性能推理引擎"},{"k":"D","t":"部署平台单一，不好落地"}],"answer":"D","marked":"D","explain":"","id":212,"chapter":"模型训练与调优"},{"no":214,"type":"single","stem":"C++是一种计算机高级程序设计语言，由（ ）扩展升级而产生，。","options":[{"k":"A","t":"Python语言"},{"k":"B","t":"Java语言"},{"k":"C","t":"C语言"},{"k":"D","t":"R语音"}],"answer":"C","marked":"C","explain":"","id":213,"chapter":"计算机与硬件基础"},{"no":215,"type":"single","stem":"TensorFlow由（ ）人工智能团队开发和维护。","options":[{"k":"A","t":"谷歌"},{"k":"B","t":"微软"},{"k":"C","t":"英特尔"},{"k":"D","t":"Facebook"}],"answer":"A","marked":"D","explain":"","id":214,"chapter":"综合"},{"no":216,"type":"single","stem":"下列（ ）操作系统类型适用于个人计算机。","options":[{"k":"A","t":"实时"},{"k":"B","t":"分时"},{"k":"C","t":"批处理"},{"k":"D","t":"网络"}],"answer":"B","marked":"B","explain":"","id":215,"chapter":"计算机与硬件基础"},{"no":217,"type":"single","stem":"（ ）是创建一个快捷方式(跳转)，用以打开存储在网络服务器、Intranet 或Internet 中的文件。","options":[{"k":"A","t":"LAMBDA"},{"k":"B","t":"HYPGEOMDIST"},{"k":"C","t":"HYPERLINK"},{"k":"D","t":"HLOOKUP"}],"answer":"C","marked":"A","explain":"","id":216,"chapter":"计算机与硬件基础"},{"no":218,"type":"single","stem":"在Excel电子表格中反双曲正弦值的双曲正弦即等于（ ）函数的number参数值，因此该函数等于 number 参数值。","options":[{"k":"A","t":"ASINH"},{"k":"B","t":"DATEDIF"},{"k":"C","t":"TODAY"},{"k":"D","t":"TRUE"}],"answer":"A","marked":"A","explain":"","id":217,"chapter":"办公软件与工具"},{"no":219,"type":"single","stem":"中央处理器的简称是（ ）。","options":[{"k":"A","t":"CPU"},{"k":"B","t":"GPU"},{"k":"C","t":"TPU"},{"k":"D","t":"NPU"}],"answer":"A","marked":"A","explain":"","id":218,"chapter":"计算机与硬件基础"},{"no":220,"type":"single","stem":"下列关于人工智能未来发展趋势描述错误的是（ ）。","options":[{"k":"A","t":"人工智能将摆脱人类的控制，并最终毁灭人类"},{"k":"B","t":"人工智能目前仅适用于特定的、专用的问题"},{"k":"C","t":"人工智能能收到越来越多的关注，许多国家出台了支持人工智能的战略计划"},{"k":"D","t":"适用人工智能的发展正处于起步阶段"}],"answer":"A","marked":"A","explain":"","id":219,"chapter":"综合"},{"no":221,"type":"single","stem":"算力、（ ）、数据构成人工智能三要素。","options":[{"k":"A","t":"公式"},{"k":"B","t":"程序"},{"k":"C","t":"软件"},{"k":"D","t":"算法"}],"answer":"D","marked":"D","explain":"","id":220,"chapter":"计算机与硬件基础"},{"no":222,"type":"single","stem":"在培训设计中，以下的步骤最关键的是（ ）。","options":[{"k":"A","t":"制定培训目标"},{"k":"B","t":"选择合适的培训方法"},{"k":"C","t":"设计培训内容"},{"k":"D","t":"评估培训效果"}],"answer":"A","marked":"B","explain":"","id":221,"chapter":"模型评估与测试"},{"no":223,"type":"single","stem":"现代计算机的基础结构是（ ）体系。","options":[{"k":"A","t":"图灵"},{"k":"B","t":"冯·诺伊曼"},{"k":"C","t":"诺伊曼·冯"},{"k":"D","t":"阿瑟·萨缪尔"}],"answer":"B","marked":"C","explain":"","id":222,"chapter":"计算机与硬件基础"},{"no":224,"type":"single","stem":"现代计算机的结构，可以理解为以（ ）为核心的结构。","options":[{"k":"A","t":"运算器"},{"k":"B","t":"控制器"},{"k":"C","t":"存储器"},{"k":"D","t":"输入设备"}],"answer":"C","marked":"A","explain":"","id":223,"chapter":"计算机与硬件基础"},{"no":225,"type":"single","stem":"现代计算机在冯·诺依曼体系结构基础上进行了修改，解决了（ ）和存储设备之间的性能差异问题。","options":[{"k":"A","t":"输出设备"},{"k":"B","t":"输入设备"},{"k":"C","t":"GPU"},{"k":"D","t":"CPU"}],"answer":"D","marked":"B","explain":"","id":224,"chapter":"计算机与硬件基础"},{"no":226,"type":"single","stem":"下列关于“追求卓越”的说法，错误的是（ ）。","options":[{"k":"A","t":"追求卓越其实无法实质上做到，只是在战略上进行计划"},{"k":"B","t":"学习是为了完善人生，追求卓越自我，成功就会出其不意的找上门来"},{"k":"C","t":"追求卓越的关键在于，要坚持充满活力，长期的学习过程，不再满足于原地踏步、平平庸庸"},{"k":"D","t":"唯有对自己卓越的才能和独特的价值有坚定、不可动摇之确信的人才被称为骄傲"}],"answer":"A","marked":"A","explain":"","id":225,"chapter":"职业道德与法规"},{"no":227,"type":"single","stem":"古人所谓的“鞠躬尽瘁，死而后已”，就是要求从业人员在职业活动中做到（ ）。","options":[{"k":"A","t":"诚实守信"},{"k":"B","t":"恪尽职守"},{"k":"C","t":"遵章守法"},{"k":"D","t":"严谨求实"}],"answer":"B","marked":"A","explain":"","id":226,"chapter":"职业道德与法规"},{"no":228,"type":"single","stem":"（ ）就是严肃，谨慎，对工作认真负责。","options":[{"k":"A","t":"诚实"},{"k":"B","t":"严谨"},{"k":"C","t":"守法"},{"k":"D","t":"公正"}],"answer":"B","marked":"B","explain":"","id":227,"chapter":"职业道德与法规"},{"no":229,"type":"single","stem":"社会主义道德的基本行为准则是（ ）。","options":[{"k":"A","t":"社会主义集体观"},{"k":"B","t":"社会主义大局观"},{"k":"C","t":"社会主义荣辱观"},{"k":"D","t":"社会主义金钱观"}],"answer":"C","marked":"B","explain":"","id":228,"chapter":"职业道德与法规"},{"no":230,"type":"single","stem":"关于道德与法律，正确的说法是（ ）。","options":[{"k":"A","t":"在法律健全完善的社会，不需要道德"},{"k":"B","t":"由于道德不具备法律那样的强制性，所以道德的社会功用不如法律"},{"k":"C","t":"在人类历史上，道德与法律同时产生"},{"k":"D","t":"在一定条件下，道德与法律能够互相作用、相互转化"}],"answer":"D","marked":"","explain":"","id":229,"chapter":"职业道德与法规"},{"no":231,"type":"single","stem":"TPU是（ ）于2016年5月提出的一个针对Tensorflow平台的可编程AI加速器。","options":[{"k":"A","t":"字节跳动"},{"k":"B","t":"Google"},{"k":"C","t":"FaceBook"},{"k":"D","t":"微软"}],"answer":"B","marked":"A","explain":"","id":230,"chapter":"计算机与硬件基础"},{"no":232,"type":"tf","stem":"数据分类和数据聚类是完全相同的过程。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":231,"chapter":"人工智能基础"},{"no":233,"type":"tf","stem":"所有类型的数据标注都可以完全自动化，不需要人工干预。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":232,"chapter":"数据标注"},{"no":234,"type":"tf","stem":"分区聚类方法，如K-均值聚类，要求事先知道聚类的数量。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":233,"chapter":"人工智能基础"},{"no":235,"type":"tf","stem":"聚类分析要求每个数据点必须属于一个且只有一个聚类。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"A","explain":"","id":234,"chapter":"人工智能基础"},{"no":236,"type":"tf","stem":"所有聚类方法都能有效处理高维数据。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":235,"chapter":"人工智能基础"},{"no":237,"type":"tf","stem":"所有聚类算法都需要用户事先指定要形成的聚类数目。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":236,"chapter":"人工智能基础"},{"no":238,"type":"tf","stem":"聚类分析可以用于监督学习任务。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"A","explain":"","id":237,"chapter":"人工智能基础"},{"no":239,"type":"tf","stem":"聚类算法要求事先知道要形成的聚类数目。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"A","explain":"","id":238,"chapter":"人工智能基础"},{"no":240,"type":"tf","stem":"使用中介者模式可以完全消除对象之间的直接通信。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"B","explain":"","id":239,"chapter":"综合"},{"no":241,"type":"tf","stem":"数据仓库的设计允许频繁的数据更新操作，以支持实时数据分析。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"A","explain":"","id":240,"chapter":"数据采集与清洗"},{"no":242,"type":"tf","stem":"（ ）PowerPoint 是一款用于创建和编辑演示文稿的办公软件。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":241,"chapter":"办公软件与工具"},{"no":243,"type":"tf","stem":"（ ）世界 500 强企业关于优秀员工的标准包括具有良好的人机关系。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"B","explain":"","id":242,"chapter":"综合"},{"no":244,"type":"tf","stem":"（ ）软件著作权人可以向国务院著作权行政管理部门认定的软件登记机构——中国版权保护中心办理登记。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":243,"chapter":"安全与合规"},{"no":245,"type":"tf","stem":"（ ）强化学习包括环境，观察，智能体，动作，奖励几个关键要素。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":244,"chapter":"人工智能基础"},{"no":246,"type":"tf","stem":"（ ）数据清洗包括去掉无效数据，检查数据一致性和完整性。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":245,"chapter":"数据采集与清洗"},{"no":247,"type":"tf","stem":"（ ）数据众包采集是以数据支撑平台为基础，集全社会的力量进行采集，并对数据的噪音错误、遗漏进行发现和纠正。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":246,"chapter":"数据采集与清洗"},{"no":248,"type":"tf","stem":"（ ）虚拟主播的语音播报使用了语音识别技术。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"A","explain":"","id":247,"chapter":"综合"},{"no":249,"type":"tf","stem":"（ ）如果样本标签是离散的，该任务属于分类任务。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":248,"chapter":"人工智能基础"},{"no":250,"type":"tf","stem":"（ ）关键点检测模型属于强化模型。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"A","explain":"","id":249,"chapter":"综合"},{"no":251,"type":"tf","stem":"（ ）P-R 曲线用于评估多分类模型的性能。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"A","explain":"","id":250,"chapter":"模型评估与测试"},{"no":252,"type":"tf","stem":"视频数据在娱乐行业中仅用于电影和电视剧的制作，不涉及其他应用场景。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":251,"chapter":"行业应用与场景"},{"no":253,"type":"tf","stem":"视频数据标注的意义仅在于帮助机器学习模型更好地理解视频内容，对于人类观看视频没有实际帮助。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":252,"chapter":"数据标注"},{"no":254,"type":"tf","stem":"在数据标注流程中，数据导入和数据标注是连续进行的，不需要在它们之间进行任何中间步骤。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":253,"chapter":"数据标注"},{"no":255,"type":"tf","stem":"数据标注员的主要职责是对原始数据进行处理和标注，他们不需要了解数据标注背后的目的和应用场景。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":254,"chapter":"数据标注"},{"no":256,"type":"tf","stem":"3D点云标注流程中，语义标注是最后一步，它涉及到对点云数据中的各个物体进行分类和标记。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":255,"chapter":"数据标注"},{"no":257,"type":"tf","stem":"客服语音数据标注的质检中，仅仅保证标注的准确性是不够的，还需要关注标注的完整性和一致性。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":256,"chapter":"数据标注"},{"no":258,"type":"tf","stem":"数据标注的验收仅仅是为了确保标注数据的准确性，而不需要考虑标注效率和其他因素。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"B","marked":"B","explain":"","id":257,"chapter":"数据标注"},{"no":259,"type":"tf","stem":"3D点云标注工具通常提供点云数据的可视化、分割、分类以及语义标注等功能，以帮助用户更好地理解和处理3D点云数据。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":258,"chapter":"数据标注"},{"no":260,"type":"tf","stem":"在进行阅读理解标注的质检时，确保标注者理解并遵循标注指南是至关重要的，这有助于保证标注的一致性和准确性。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":259,"chapter":"数据标注"},{"no":261,"type":"tf","stem":"在词性关系标注的质检阶段，对于关系标注的歧义问题，通常需要通过人工复查和讨论来解决。","options":[{"k":"A","t":"正确"},{"k":"B","t":"错误"}],"answer":"A","marked":"A","explain":"","id":260,"chapter":"数据标注"},{"no":262,"type":"multi","stem":"人工智能开发中常用的编程语言包括哪些？","options":[{"k":"A","t":"Python"},{"k":"B","t":"R"},{"k":"C","t":"Java"},{"k":"D","t":"C++"},{"k":"E","t":"JavaScript"}],"answer":"ABCD","marked":"ACDE","explain":"","id":261,"chapter":"计算机与硬件基础"},{"no":263,"type":"multi","stem":"常用的代码版本控制工具包括哪些？","options":[{"k":"A","t":"Git"},{"k":"B","t":"Subversion (SVN)"},{"k":"C","t":"Mercurial"},{"k":"D","t":"Perforce"},{"k":"E","t":"CVS"}],"answer":"ABCD","marked":"DE","explain":"","id":262,"chapter":"综合"},{"no":264,"type":"multi","stem":"ASIC的特点包括哪些？","options":[{"k":"A","t":"定制性强，可以针对特定应用进行优化"},{"k":"B","t":"体积小，适用于空间受限的应用场景"},{"k":"C","t":"功耗低，适合对能效有高要求的产品"},{"k":"D","t":"生产周期长，从设计到生产需要较长时间"},{"k":"E","t":"适用于大批量生产，可以降低单位成本"}],"answer":"ABCE","marked":"AC","explain":"","id":263,"chapter":"计算机与硬件基础","issue":{"level":"mid","note":"“生产周期长、从设计到生产需要较长时间”是 ASIC 公认的缺点之一，通常也列为 ASIC 的特点；原答案 ABCE 把它排除，存在争议。","suggest":"ABCE（D 亦有道理）"}},{"no":265,"type":"multi","stem":"关于ASIC的概念，正确的有哪些？","options":[{"k":"A","t":"ASIC是专用集成电路（Application-Specific Integrated Circuit）的缩写"},{"k":"B","t":"ASIC是为特定应用或功能而设计的集成电路"},{"k":"C","t":"ASIC通常不可编程，一旦制造完成其功能就固定不变"},{"k":"D","t":"ASIC的设计成本较高，但批量生产时单位成本较低"},{"k":"E","t":"ASIC在性能、功耗和面积上通常优于通用处理器"}],"answer":"ABCDE","marked":"ADE","explain":"","id":264,"chapter":"计算机与硬件基础"},{"no":266,"type":"multi","stem":"FPGA的特点包括哪些？","options":[{"k":"A","t":"可重构性，能够根据需求重新配置硬件"},{"k":"B","t":"并行处理能力强，适合处理复杂算法"},{"k":"C","t":"低延迟，适用于实时计算"},{"k":"D","t":"通常功耗较高"},{"k":"E","t":"适用于小批量生产和定制化硬件设计"}],"answer":"ABCE","marked":"ABCDE","explain":"","id":265,"chapter":"计算机与硬件基础","issue":{"level":"mid","note":"“通常功耗较高”相对 ASIC 而言是 FPGA 的公认特点，原答案 ABCE 将其排除，存在争议，可结合教材口径作答。","suggest":"ABCE（D 亦有道理）"}},{"no":267,"type":"multi","stem":"关于FPGA的概念，正确的有哪些？","options":[{"k":"A","t":"FPGA是现场可编程门阵列（Field-Programmable Gate Array）的缩写"},{"k":"B","t":"FPGA包含可编程的逻辑块和可编程的互连"},{"k":"C","t":"FPGA在制造完成后可以进行多次编程以实现不同的逻辑功能"},{"k":"D","t":"FPGA通常用于原型设计、嵌入式系统和硬件加速"},{"k":"E","t":"FPGA的编程语言主要是VHDL和Verilog"}],"answer":"ABCDE","marked":"ABCDE","explain":"","id":266,"chapter":"计算机与硬件基础"},{"no":268,"type":"multi","stem":"NPU的特点包括哪些？","options":[{"k":"A","t":"优化的计算架构，适用于并行处理"},{"k":"B","t":"高度集成的硬件加速器，用于矩阵运算"},{"k":"C","t":"支持多种深度学习框架"},{"k":"D","t":"通常具有较低的功耗"},{"k":"E","t":"能够处理复杂的神经网络模型"}],"answer":"ABCDE","marked":"ABC","explain":"","id":267,"chapter":"计算机与硬件基础"},{"no":269,"type":"multi","stem":"关于NPU的概念，正确的有哪些？","options":[{"k":"A","t":"NPU是神经处理单元（Neural Processing Unit）的缩写"},{"k":"B","t":"NPU专门为处理神经网络算法而设计"},{"k":"C","t":"NPU可以加速机器学习和人工智能应用"},{"k":"D","t":"NPU通常具有更高的能效比"},{"k":"E","t":"NPU在图像识别、语音识别等领域有广泛应用"}],"answer":"ABCDE","marked":"ABCDE","explain":"","id":268,"chapter":"计算机与硬件基础"},{"no":270,"type":"multi","stem":"GPU的特点包括哪些？","options":[{"k":"A","t":"高并发处理能力"},{"k":"B","t":"高内存带宽"},{"k":"C","t":"高计算精度"},{"k":"D","t":"专为图形渲染设计"},{"k":"E","t":"支持多线程编程"}],"answer":"ABDE","marked":"ABCE","explain":"","id":269,"chapter":"计算机与硬件基础"},{"no":271,"type":"multi","stem":"关于GPU的概念，正确的有哪些？","options":[{"k":"A","t":"GPU是图形处理单元（Graphics Processing Unit）的缩写"},{"k":"B","t":"GPU主要用于渲染图形和处理图像"},{"k":"C","t":"GPU采用大量的并行处理单元来提高计算效率"},{"k":"D","t":"GPU采用大量的并行处理单元来提高计算效率"},{"k":"E","t":"GPU在科学计算和深度学习等领域也有广泛应用"}],"answer":"ABCDE","marked":"ABC","explain":"","id":270,"chapter":"计算机与硬件基础","issue":{"level":"info","note":"选项 C 与选项 D 的文字完全相同（均为“GPU 采用大量的并行处理单元来提高计算效率”），属原题排版错误。","suggest":"按全选 ABCDE 记忆"}},{"no":272,"type":"multi","stem":"下列选项中，属于职业道德特点的是（ ）。","options":[{"k":"A","t":"统一性"},{"k":"B","t":"职业性"},{"k":"C","t":"多样性"},{"k":"D","t":"稳定性"},{"k":"E","t":"普遍性"}],"answer":"BCD","marked":"AD","explain":"","id":271,"chapter":"职业道德与法规"},{"no":273,"type":"multi","stem":"人工智能项目开发过程中，资源成本包括（ ）。","options":[{"k":"A","t":"机会成本"},{"k":"B","t":"数据成本"},{"k":"C","t":"设备成本"},{"k":"D","t":"人力成本"},{"k":"E","t":"时间成本"}],"answer":"BCD","marked":"DE","explain":"","id":272,"chapter":"综合"},{"no":274,"type":"multi","stem":"关于TPU，下列说法正确的是（ ）。","options":[{"k":"A","t":"TPU 是一款专用于机器学习的芯片"},{"k":"B","t":"TPU 是一款专用于数据处理的芯片"},{"k":"C","t":"TPU 能用于深度神经网络训练"},{"k":"D","t":"TPU 可以提供高吞吐量的高精度计算"},{"k":"E","t":"TPU 可以提供高吞吐量的低精度计算"}],"answer":"ACE","marked":"AB","explain":"","id":273,"chapter":"计算机与硬件基础"},{"no":275,"type":"multi","stem":"常用的 Python 科学计算库有（ ）。","options":[{"k":"A","t":"Numpy"},{"k":"B","t":"SciKit-learn"},{"k":"C","t":"Pandas"},{"k":"D","t":"SciPy"},{"k":"E","t":"百度"}],"answer":"ABCD","marked":"ABC","explain":"","id":274,"chapter":"计算机与硬件基础"},{"no":276,"type":"multi","stem":"以下（ ）属于常见语音数据异常。","options":[{"k":"A","t":"丢帧"},{"k":"B","t":"喷麦"},{"k":"C","t":"重音"},{"k":"D","t":"音调较高"},{"k":"E","t":"切音"}],"answer":"ABCE","marked":"ABC","explain":"","id":275,"chapter":"综合","issue":{"level":"info","note":"本题把“重音”“切音”计为语音数据异常，可与第 135 题对照记忆（第 135 题的四个选项其实都属于异常现象）。","suggest":"ABCE"}},{"no":277,"type":"multi","stem":"下列属于生成模型的场景有（ ）。","options":[{"k":"A","t":"戴口罩检测"},{"k":"B","t":"低分辨率图片变成高分辨率图片"},{"k":"C","t":"通过输入文本语义，输出一幅符合文本语义的图像"},{"k":"D","t":"人脸检测"},{"k":"E","t":"chatGPT"}],"answer":"BCE","marked":"BD","explain":"","id":276,"chapter":"行业应用与场景"},{"no":278,"type":"multi","stem":"下图中包含（ ）人工智能图像任务。","options":[{"k":"A","t":"图像侦测"},{"k":"B","t":"图像生成"},{"k":"C","t":"图像检测"},{"k":"D","t":"图像语义分割"},{"k":"E","t":"图像分类"}],"answer":"ACD","marked":"ACE","explain":"","id":277,"chapter":"数据标注","issue":{"level":"info","note":"原题为配图题（判断图中包含哪些图像任务），截图中的示意图无法在文字版中呈现；另外“图像侦测”与“图像检测”含义重复，选项本身也有瑕疵。","suggest":"ACD"}},{"no":279,"type":"multi","stem":"3D点云描述正确的是（ ）。","options":[{"k":"A","t":"3D 点云数据只有顶点数据，无线和面的数据"},{"k":"B","t":"3D 点云数据相对与完整 3D 数据，数据量更少，处理起来更高效"},{"k":"C","t":"3D 点云技术常用到自动驾驶行业中"},{"k":"D","t":"可以通过 3D 点云数据完全还原物体的纹理贴图信息"},{"k":"E","t":"3D 点云比图像多了一个维度"}],"answer":"ABCE","marked":"AB","explain":"","id":278,"chapter":"数据标注"},{"no":280,"type":"multi","stem":"常用的人工智能计算芯片有（ ）。","options":[{"k":"A","t":"NPU"},{"k":"B","t":"GPU"},{"k":"C","t":"CPU"},{"k":"D","t":"TPU"},{"k":"E","t":"ASIC"}],"answer":"ABCDE","marked":"BC","explain":"","id":279,"chapter":"计算机与硬件基础"},{"no":281,"type":"multi","stem":"常见的样本数据划分方式为（ ）。","options":[{"k":"A","t":"训练集，验证集"},{"k":"B","t":"验证集，测试集"},{"k":"C","t":"训练集，测试集"},{"k":"D","t":"训练集，验证集，测试集"},{"k":"E","t":"练习集，测试集，验证集"}],"answer":"ABCD","marked":"AB","explain":"","id":280,"chapter":"模型训练与调优"},{"no":282,"type":"multi","stem":"数据采集的方法包括（ ）。","options":[{"k":"A","t":"互联网数据采集"},{"k":"B","t":"数据众包采集"},{"k":"C","t":"传感器数据采集"},{"k":"D","t":"网络抓取"},{"k":"E","t":"行业数据合作"}],"answer":"ABCDE","marked":"AB","explain":"","id":281,"chapter":"数据采集与清洗"},{"no":283,"type":"multi","stem":"下列终止劳动合同的情形中，属于用人单位应当向劳动者支付经济补偿的有（ ）。","options":[{"k":"A","t":"劳动者在试用期间被证明不符合录用条件，用人单位解除劳动合同的"},{"k":"B","t":"未依法为劳动者缴纳社会保险费；劳动者解除劳动合同的"},{"k":"C","t":"劳动者提前30日以书面形式通知用人单位解除劳动合同的"},{"k":"D","t":"用人单位被依法宣告破产的"},{"k":"E","t":"劳动者主动提出离职"}],"answer":"BCD","marked":"ABD","explain":"","id":282,"chapter":"职业道德与法规"},{"no":284,"type":"multi","stem":"下列关于道德调节与法律调节的说法中，不正确的是（ ）。","options":[{"k":"A","t":"道德调节的主体比法律调节的主体广泛"},{"k":"B","t":"法律调节比道德调节具有强制性和事先性的优势"},{"k":"C","t":"道德调节比法律调节更能够体现人性关怀"},{"k":"D","t":"法律调节比道德调节更具有实效性"},{"k":"E","t":"道德调节比法律调节更具有前瞻性"}],"answer":"BCD","marked":"AC","explain":"","id":283,"chapter":"职业道德与法规"},{"no":285,"type":"multi","stem":"职业道德是指从事一定职业劳动的人们，在特定的工作和劳动中以其内心信念和特殊社会手段来维系的，以善恶进行评价的（ ）的总和。","options":[{"k":"A","t":"心理意识"},{"k":"B","t":"行为原则"},{"k":"C","t":"企业价值观"},{"k":"D","t":"主观意识"},{"k":"E","t":"行为规范"}],"answer":"ABE","marked":"BC","explain":"","id":284,"chapter":"职业道德与法规"},{"no":286,"type":"multi","stem":"在图像生成式对抗神经网络结构中，判别网络的作用是（ ）。","options":[{"k":"A","t":"判断图像来源于生成器还是真实数据"},{"k":"B","t":"生成图像数据"},{"k":"C","t":"对图像进行分类"},{"k":"D","t":"对图像进行分割"},{"k":"E","t":"指导生成器生成图像"}],"answer":"AE","marked":"BC","explain":"","id":285,"chapter":"人工智能基础"},{"no":287,"type":"multi","stem":"生成式对抗神经网络结构通常包括（ ）。","options":[{"k":"A","t":"编码网络"},{"k":"B","t":"解码网络"},{"k":"C","t":"生成网络"},{"k":"D","t":"判别网络"},{"k":"E","t":"搜索网络"}],"answer":"CD","marked":"AB","explain":"","id":286,"chapter":"计算机与硬件基础"},{"no":288,"type":"multi","stem":"可能会导致梯度弥散的是（ ）。","options":[{"k":"A","t":"网络层次太深"},{"k":"B","t":"使用了饱和性激活函数"},{"k":"C","t":"学习率太大"},{"k":"D","t":"使用了SGD优化器"},{"k":"E","t":"学习率太小"}],"answer":"ABE","marked":"AB","explain":"","id":287,"chapter":"办公软件与工具"},{"no":289,"type":"multi","stem":"迁移学习的目的（ ）。","options":[{"k":"A","t":"降低数据量"},{"k":"B","t":"加快模型收敛"},{"k":"C","t":"提高模型泛化能力"},{"k":"D","t":"加快模型推理速度"},{"k":"E","t":"加快模型推理能力"}],"answer":"ABC","marked":"CDE","explain":"","id":288,"chapter":"模型评估与测试"},{"no":290,"type":"multi","stem":"小明正在评估一个二分类模型，并希望使用ROC曲线和AUC来评估模型性能。以下（ ）选项是关于ROC曲线和AUC的正确描述。","options":[{"k":"A","t":"ROC曲线是受试者工作特征曲线的缩写"},{"k":"B","t":"ROC曲线的纵坐标表示真阳性率"},{"k":"C","t":"ROC曲线的横坐标表示假阳性率"},{"k":"D","t":"AUC表示ROC曲线下的面积"},{"k":"E","t":"AUC的取值范围是[-1, 1]"}],"answer":"ABCD","marked":"AB","explain":"","id":289,"chapter":"模型评估与测试"},{"no":291,"type":"multi","stem":"在数据处理规范制定中，音频数据标注的要求有（ ）。","options":[{"k":"A","t":"准确标注语音的开始和结束时间"},{"k":"B","t":"标记发音错误和语法错误"},{"k":"C","t":"标注口音和方言的变化"},{"k":"D","t":"识别并标注特定的语音特征"},{"k":"E","t":"注明说话者的身份"}],"answer":"ADE","marked":"BD","explain":"","id":290,"chapter":"数据标注"},{"no":292,"type":"case","stem":"在人工智能项目中，为什么数据清洗是一个重要的步骤？请列举至少两个理由。","options":[],"answer":"","marked":"","explain":"1.提高模型性能：数据清洗可以去除数据集中的噪声、异常值和错误数据，从而提高输入到模型中的数据质量。高质量的数据能够训练出更加准确和可靠的模型，提高模型的预测性能。 2.减少训练时间：清洗后的数据集通常更加紧凑和高效，这意味着模型在训练时能够更快地收敛，减少训练时间。此外，清洗后的数据还能减少模型在训练过程中的计算负担，提高训练效率。","id":291,"chapter":"案例分析"},{"no":293,"type":"case","stem":"某社交 APP 的 AI 内容推荐模型需处理文本、图像、短视频三类数据，三类数据的处理延迟要求差异显著（文本 < 1 秒，图像 < 3 秒，视频 < 10 秒）。设计处理流程时如何平衡效率与特征完整性？请说明 2 种核心策略。","options":[],"answer":"","marked":"","explain":"答：\n异构计算调度策略：文本用CPU集群处理，图像用GPU加速处理，视频采用“边缘预处理+云端深度学习”架构，通过动态资源分配满足不同延迟要求；\n特征层级处理策略：基础特征实时处理，高级特征异步批处理，AI模型采用“实时特征+缓存高级特征”的融合推理模式。","id":292,"chapter":"案例分析"},{"no":294,"type":"case","stem":"当训练的模型精准度、召回率等指标不足时可以通过哪些方法提高这些指标？","options":[],"answer":"","marked":"","explain":"答：\n①调整阈值：改变模型判断正类的临界值，以找到精准度和召回率之间的最佳平衡点。\n②处理数据不平衡：如果数据集不平衡，可以通过过采样或欠采样来平衡类别分布。\n③改进模型：尝试更复杂的模型或调整现有模型的参数。\n④特征工程：增加新特征或改进现有特征，以帮助模型更好地学习。\n⑤模型融合：结合多个模型的预测来提高整体性能。\n⑥分析错误：深入了解模型预测错误的类型，针对性地进行改进。\n⑦数据增强：增加数据的多样性，特别是在图像和文本数据上。","id":293,"chapter":"案例分析"},{"no":295,"type":"case","stem":"从数据处理角度，列举人工智能模型训练如何提高精准度和泛化能力？","options":[],"answer":"","marked":"","explain":"答：\n①数据预处理：填补缺失值、处理异常值、标准化/归一化、去重。\n②特征工程：选择重要特征、提取新特征。\n③数据分布调整：重采样、使用合成数据。\n④集成学习和迁移学习：结合多个模型或利用预训练模型。\n⑤模型验证与调优：使用交叉验证，调整参数。\n⑥避免过拟合和欠拟合：平衡模型复杂度和训练误差。","id":294,"chapter":"案例分析"},{"no":296,"type":"case","stem":"某数据处理流程包含 4 个串行环节，处理效率分别为：\n环节 1：每小时处理 1000 条（错误率 2%）\n环节 2：每小时处理800条（错误率1.5%）\n环节 3：每小时处理1200条（错误率 3%）\n环节 4：每小时处理1500条（错误率 1%）","options":[],"answer":"","marked":"","explain":"答：\n环节 1 输出： 10 万 ×(1-2%)=98,000 条，耗时：10 万 ÷1000=100 小时；\n环节 2 输出： 98,000×(1-1.5%)=96,530 条，耗时：98,000÷800=122.5 小时；\n环节 3 输出： 96,530×(1-3%)=93,634.1≈93,634 条，耗时：96,530÷1200≈80.44 小时；\n环节 4 输出： 93,634×(1-1%)=92,697.66≈92,698 条，耗时：93,634÷1500≈62.42 小时；","id":295,"chapter":"案例分析"},{"no":297,"type":"case","stem":"聊天机器人是一种经由对话或文字进行交谈的计算机软件程序，能够模拟人类对话并解决不同场景下的业务需求。随着人工智能、互联网等技术的发展，聊天机器人应用多重领域，在电信、旅游、医疗航空、金融等领域均有涉及，效果明显。人工智能技术突破了聊天机器人原有的技术瓶颈，并且实践证明，聊天机器人的使用不仅能够为企业减少一大笔人力成本，而且能够明显提高工作效率，国内外多家企业纷纷布局聊天机器人行业，聊天机器人市场一片蓝海。\n问题：\n1）详细描述聊天机器人里面用到了哪些人工智能技术，并描述其定义。\n2）详细描述协同工作的原理。","options":[],"answer":"","marked":"","explain":"答：1）聊天机器人依赖于多种人工智能技术来实现其功能，包括自然语言处理（NLP）、机器学习、深度学习、对话管理、语音识别和文本到语音转换等。\n①自然语言处理（NLP）：NLP是聊天机器人的核心技术之一。它帮助机器人理解和生成人类语言。NLP的任务包括语音识别、语言模型构建、语义理解、实体识别、情感分析等。\n②机器学习：机器学习在训练模型以改进对用户意图识别和对话管理的准确性和效率方面起着关键作用。\n③深度学习：深度学习通过神经网络提供强大的语义理解和语言生成能力。\n④对话管理：对话管理系统负责跟踪对话状态，决定机器在对话中的行为和回应。基于规则的系统、基于统计的系统及混合系统都是常见的方法。\n⑤语音识别和文本到语音转换：语音识别技术将语音输入转为文本，而文本到语音转换则是将生成的文本响应转换为自然语音，提升用户体验。\n2）协同工作的原理：协同工作是指多个人或机器共同朝着一个共同目标或解决某个问题进行的合作。\n其原理包括以下几个方面：\n①共享目标：协同工作需要参与者对目标有统一的理解和认识，确保所有行动都是为了实现同一个目标。\n②信息共享：参与者通过各种通信方式进行信息共享，这包括文件共享、实时消息、视频会议等，以确保所有成员对信息有统一的了解。\n③角色分配：在协同工作中，明确的角色分配至关重要。这涉及决定谁负责哪个任务，以便在资源和责任之间实现最佳平衡。\n④互补优势：协同工作常常依靠团队中各个参与者的互补优势，以便更有效地完成任务。每个成员可能具有不同的专长和能力，通过协同合作，能够充分发挥各自的长处。","id":296,"chapter":"案例分析"},{"no":298,"type":"case","stem":"对四级工开展智能快递柜数据采集技术培训时，需重点讲解“异常数据捕捉”技巧。结合“快递柜取件码失效导致用户投诉”案例，说明培训中应包含的2个关键知识点。","options":[],"answer":"","marked":"","explain":"答：时效异常捕捉：讲解如何设置取件码有效期（如24小时）预警，当超过12小时未取件时自动标记并推送提醒；\n交互日志关联：培训通过“用户点击‘重发取件码’次数> 3 次”判断系统异常，结合实际案例中因短信通道拥堵导致的失效问题。","id":297,"chapter":"案例分析"},{"no":299,"type":"case","stem":"人工智能算法模型开发过程中，模型研发分为哪几步，每一步需要做哪些工作？","options":[],"answer":"","marked":"","explain":"答：模型研发分以下几步：\n①问题定义：明确问题和模型的目标，确定所需的输入和期望的输出。\n②数据收集：搜集和整理用于训练和测试的数据。\n③数据预处理：处理数据，包括填补缺失值、处理异常值、数据标准化/归一化、数据去重等。\n④特征工程：选择、提取和构造有助于模型训练的特征。\n⑤模型选择：根据问题类型选择合适的算法或模型架构。\n⑥模型训练：使用训练数据集对模型进行训练。\n⑦模型验证：使用验证数据集评估模型的性能，进行超参数调优。","id":298,"chapter":"案例分析"},{"no":300,"type":"case","stem":"在进行数据聚类时，可能遇到哪些挑战？","options":[],"answer":"","marked":"","explain":"① 数据规模：处理大规模数据集时，聚类算法的效率和可扩展性成为一个挑战。 ② 数据维度：高维数据可能导致距离计算变得不那么有意义，影响聚类效果。 ③ 数据类型：不同类型的数据（如数值、分类、有序等）可能需要不同的距离度量或聚类方法。 ④ 噪声和异常值：噪声和异常值可能影响聚类结果，需要采用鲁棒性强的算法或在预处理中加以处理。 ⑤ 簇的数量：对于一些算法，需要预先指定簇的数量，而确定合适的簇数量可能是一个挑战。 ⑥ 局部最优：某些聚类算法可能会陷入局部最优解，而不是全局最优解。 ⑦ 解释性和可用性：聚类结果的解释性和如何将聚类结果有效应用于实际问题也是一个挑战。","id":299,"chapter":"案例分析"}]};
+const QS = BANK.questions.map((q,i)=>({...q, idx:i}));
+
+/* ================= 状态 ================= */
+const LS_KEY = 'aitrainer_wb_v1';
+const defaultState = ()=>({
+  answers:{},          // qid -> {sel:'A', ok:bool, ts}
+  wrong:[],            // 错题 qid 列表
+  fav:[],              // 收藏
+  doubt:[],            // 手动标记存疑
+  notes:{},            // qid -> 笔记
+  examDate:'',         // 考试日期 YYYY-MM-DD
+  examTime:'09:00',
+  settings:{duration:90, passScore:60, single:60, tf:20, multi:10, multiScore:2, shuffle:true},
+  stats:{done:0, right:0, byDay:{}, streak:{last:'',n:0}},
+  exam:null,           // 进行中的考试
+  seqIdx:0
+});
+let S = load();
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(!raw) return defaultState();
+    const s = JSON.parse(raw);
+    return Object.assign(defaultState(), s, {settings:Object.assign(defaultState().settings, s.settings||{})});
+  }catch(e){ return defaultState(); }
+}
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
+
+/* ================= 工具 ================= */
+const $ = s=>document.querySelector(s);
+const el = (tag, cls, html)=>{ const e=document.createElement(tag); if(cls)e.className=cls; if(html!=null)e.innerHTML=html; return e; };
+const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = ()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+let toastT;
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1900); }
+const TYPE_LABEL = {single:'单选题', multi:'多选题', tf:'判断题', case:'案例题'};
+const TYPE_CLS = {single:'single', multi:'multi', tf:'tf', case:'case'};
+const qid = q=>q.id;
+function getQ(id){ return QS.find(q=>q.id===id); }
+function letterAns(q){ return q.answer||''; }
+function isMulti(q){ return q.type==='multi'; }
+function isCorrect(q, sel){
+  if(!sel) return false;
+  const a = (q.answer||'').toUpperCase().split('').sort().join('');
+  const s = String(sel).toUpperCase().split('').sort().join('');
+  return a && a===s;
+}
+function todayStat(){ const d=today(); S.stats.byDay[d] = S.stats.byDay[d]||{d:0,r:0}; return S.stats.byDay[d]; }
+
+/* ================= 倒计时 ================= */
+function targetDate(){
+  if(!S.examDate) return null;
+  const t = (S.examTime||'09:00').split(':');
+  const dt = new Date(S.examDate+'T'+String(t[0]||9).padStart(2,'0')+':'+String(t[1]||0).padStart(2,'0')+':00');
+  return isNaN(dt) ? null : dt;
+}
+function tickExamCountdown(){
+  const box=$('#cdExam'), num=$('#cdExamNum');
+  const target = targetDate();
+  if(!target){ num.textContent='设置日期'; box.classList.remove('urgent'); return; }
+  const ms = target - new Date();
+  if(ms<=0){ num.textContent='已开考'; box.classList.add('urgent'); return; }
+  const d = Math.floor(ms/86400000), h=Math.floor(ms%86400000/3600000), m=Math.floor(ms%3600000/60000), s=Math.floor(ms%60000/1000);
+  num.textContent = d>0 ? `${d}天 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+                        : `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  box.classList.toggle('urgent', d<7);
+}
+setInterval(tickExamCountdown, 1000);
+
+/* ================= 路由 ================= */
+const TITLES = {home:['学习首页','今日进度与考试倒计时'],practice:['顺序练习','按题库顺序刷题'],random:['随机练习','打乱顺序，查漏补缺'],
+  exam:['模拟考试','90分钟 · 100分 · 60分及格'],wrong:['错题集','做错的题自动收录'],fav:['收藏夹','重点题目'],
+  doubt:['答案存疑','已标注的疑似答案有误'],stats:['学习统计','正确率与题型分布']};
+let view='home';
+function go(v, opts){
+  view=v;
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  $('#pageTitle').textContent = TITLES[v][0];
+  $('#pageSub').textContent = TITLES[v][1];
+  $('#side').classList.remove('open'); $('#backdrop').classList.remove('show');
+  render(opts);
+  window.scrollTo(0,0);
+}
+function render(opts){
+  const c=$('#content'); c.innerHTML='';
+  ({home:renderHome, practice:renderPractice, random:renderPractice, exam:renderExam,
+    wrong:renderList, fav:renderList, doubt:renderList, stats:renderStats}[view])(c, opts);
+  updateCounts();
+}
+function updateCounts(){
+  $('#cWrong').textContent = S.wrong.length;
+  $('#cFav').textContent = S.fav.length;
+  const autoDoubt = QS.filter(q=>q.issue&&q.issue.level).length;
+  $('#cDoubt').textContent = autoDoubt + S.doubt.length;
+}
+
+/* ================= 首页 ================= */
+function renderHome(c){
+  const total=QS.length;
+  const answered=Object.keys(S.answers).length;
+  const right=Object.values(S.answers).filter(a=>a.ok).length;
+  const rate = answered? Math.round(right/answered*100):0;
+  const wrongCnt=S.wrong.length;
+  const flagged=QS.filter(q=>q.issue&&q.issue.level).length;
+  const ts=todayStat();
+
+  const head = el('div','card pad');
+  head.style.marginBottom='14px';
+  head.innerHTML = `
+   <div style="display:flex;gap:22px;align-items:center;flex-wrap:wrap">
+     <div class="ring" style="--p:${Math.round(answered/total*100)}"><b>${Math.round(answered/total*100)}<small>%</small></b></div>
+     <div style="flex:1;min-width:200px">
+       <div style="font-size:17px;font-weight:800">题库共 ${total} 题 · 已练 ${answered} 题</div>
+       <div class="muted" style="margin-top:5px">答题正确率 ${rate}% ｜ 错题 ${wrongCnt} 题 ｜ 存疑标注 ${flagged} 题</div>
+       <div class="qbar" style="margin-top:12px"><i style="width:${answered/total*100}%"></i></div>
+     </div>
+     <div style="text-align:right">
+       <div class="muted">今日已答</div>
+       <div style="font-size:26px;font-weight:800;font-variant-numeric:tabular-nums">${ts.d}</div>
+     </div>
+   </div>`;
+  c.appendChild(head);
+
+  const stats = el('div','grid g4'); stats.style.marginBottom='14px';
+  const items = [
+    ['单选题', QS.filter(q=>q.type==='single').length, '题'],
+    ['判断题', QS.filter(q=>q.type==='tf').length, '题'],
+    ['多选题', QS.filter(q=>q.type==='multi').length, '题'],
+    ['简答/案例', QS.filter(q=>q.type==='case').length, '题'],
+  ];
+  items.forEach(([k,v,u])=>{
+    const s=el('div','stat');
+    s.innerHTML=`<div class="k">${k}</div><div class="v">${v}<small>${u}</small></div>`;
+    stats.appendChild(s);
+  });
+  c.appendChild(stats);
+
+  // 入口
+  const grid=el('div','grid g2');
+  const entries=[
+    ['开始练习','按题库顺序逐题练习，可按题型筛选','practice','✎'],
+    ['错题重练','把做错的题再刷一遍（'+wrongCnt+' 题）','wrong','✗'],
+    ['模拟考试','90 分钟计时，交卷判分（60 分及格）','exam','⏱'],
+    ['答案存疑','已标注的疑似错题，建议重点记忆','doubt','⚠'],
+  ];
+  entries.forEach(([t,d,v,ic])=>{
+    const b=el('button','card pad');
+    b.style.textAlign='left'; b.style.cursor='pointer';
+    b.innerHTML=`<div style="display:flex;gap:12px;align-items:center">
+      <div style="width:38px;height:38px;border-radius:11px;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-size:17px">${ic}</div>
+      <div><div style="font-weight:800;font-size:15px">${t}</div><div class="muted" style="margin-top:2px">${d}</div></div></div>`;
+    b.onclick=()=>go(v);
+    grid.appendChild(b);
+  });
+  c.appendChild(grid);
+
+  // 最近错题
+  if(S.wrong.length){
+    const box=el('div','card pad'); box.style.marginTop='14px';
+    box.innerHTML='<h2 class="sec"><span class="dot"></span>最近错题</h2>';
+    S.wrong.slice(-5).reverse().forEach(id=>{
+      const q=getQ(id); if(!q) return;
+      const r=el('div','row');
+      r.innerHTML=`<div class="no">${esc(q.no||'')}</div>
+        <div class="body"><p>${esc(q.stem)}</p>
+        <div class="meta"><span class="pill ${TYPE_CLS[q.type]}">${TYPE_LABEL[q.type]||''}</span><span>正确答案 ${esc(q.answer)}</span></div></div>
+        <button class="btn sm">重做</button>`;
+      r.querySelector('button').onclick=()=>startSession('wrong', {jump:id});
+      box.appendChild(r);
+    });
+    c.appendChild(box);
+  }
+
+  const tip=el('div','card pad'); tip.style.marginTop='14px';
+  tip.innerHTML=`<h2 class="sec"><span class="dot"></span>使用提示</h2>
+    <div class="muted" style="line-height:1.9">
+    · 快捷键：<span class="kbd">A</span><span class="kbd">B</span><span class="kbd">C</span><span class="kbd">D</span><span class="kbd">E</span> 选项 · <span class="kbd">Enter</span> 下一题 · <span class="kbd">F</span> 收藏 · <span class="kbd">X</span> 标记存疑<br>
+    · 所有作答、错题、收藏、笔记都保存在本机浏览器，换浏览器或清理缓存会丢失。<br>
+    · 题库共 ${QS.length} 题，其中 <b>${QS.filter(q=>q.issue&&q.issue.level==='high').length}</b> 题标注“答案疑似有误”、<b>${QS.filter(q=>q.issue&&q.issue.level==='mid').length}</b> 题“有争议”、<b>${QS.filter(q=>q.issue&&q.issue.level==='info').length}</b> 题“备注”，可在左侧「答案存疑」集中查看。<br>
+    · 题目由《人工智能训练师-300道题.docx》中的截图逐题转录，原文档题号 6 缺失，末尾 9 题为简答/案例题（自评作答）。</div>
+    <div class="actions"><button class="btn sm" id="btnAbout">查看题库与标注说明</button></div>`;
+  c.appendChild(tip);
+  const ba=tip.querySelector('#btnAbout'); if(ba) ba.onclick=()=>openAbout();
+}
+
+/* ================= 练习 ================= */
+let SES = null; // {list:[qid], pos, mode, exam:false}
+function startSession(mode, opts={}){
+  let list=[];
+  if(mode==='practice') list = QS.map(q=>q.id);
+  else if(mode==='random') list = shuffle(QS.map(q=>q.id));
+  else if(mode==='wrong') list = S.wrong.slice();
+  else if(mode==='fav') list = S.fav.slice();
+  else if(mode==='doubt') list = QS.filter(q=>(q.issue&&q.issue.level)||S.doubt.includes(q.id)).map(q=>q.id);
+  if(opts.type && opts.type!=='all') list = list.filter(id=>getQ(id) && getQ(id).type===opts.type);
+  if(!list.length){ toast('这里还没有题目'); return; }
+  SES={list, pos:0, mode, exam:false};
+  if(opts.jump){ const i=list.indexOf(opts.jump); if(i>=0) SES.pos=i; }
+  if(opts.pos!=null) SES.pos=Math.max(0,Math.min(list.length-1,opts.pos));
+  go(mode==='wrong'?'wrong':mode==='fav'?'fav':mode==='doubt'?'doubt':(mode==='random'?'random':'practice'), {session:true});
+}
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+function renderPractice(c, opts){
+  if(!SES || !SES.list.length || (view==='practice'&&SES.mode!=='practice') || (view==='random'&&SES.mode!=='random')
+     || (view==='wrong'&&SES.mode!=='wrong') || (view==='fav'&&SES.mode!=='fav') || (view==='doubt'&&SES.mode!=='doubt')){
+    // 起始页
+    const mode = view;
+    const wrap=el('div','card pad');
+    const count = mode==='practice'?QS.length : mode==='random'?QS.length : mode==='wrong'?S.wrong.length : mode==='fav'?S.fav.length : QS.filter(q=>(q.issue&&q.issue.level)||S.doubt.includes(q.id)).length;
+    wrap.innerHTML=`<h2 class="sec"><span class="dot"></span>${mode==='wrong'?'错题重练':mode==='fav'?'收藏重练':mode==='doubt'?'存疑题重刷':'开始练习'}</h2>
+      <p class="muted" style="margin:0 0 16px">共 ${count} 题。选择题型后可开始；作答后立即显示对错与解析。</p>`;
+    const types=[['all','全部题型',count],['single','单选题',0],['tf','判断题',0],['multi','多选题',0],['case','案例题',0]];
+    const bar=el('div',''); bar.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+    let sel='all';
+    types.forEach(([t,label])=>{
+      const b=el('button','btn sm', esc(label));
+      if(t!=='all'){
+        const n = (mode==='practice'?QS:(mode==='wrong'?S.wrong.map(getQ):mode==='fav'?S.fav.map(getQ):QS)).filter(q=>q&&q.type===t).length;
+        b.innerHTML = esc(label)+` <span class="muted">${n}</span>`;
+      }
+      b.onclick=()=>{ sel=t; bar.querySelectorAll('button').forEach(x=>x.classList.remove('primary')); b.classList.add('primary'); startSession(mode,{type:t}); };
+      if(t==='all') b.classList.add('primary');
+      bar.appendChild(b);
+    });
+    wrap.appendChild(bar);
+    const act=el('div','actions');
+    const b1=el('button','btn primary','开始 →'); b1.onclick=()=>startSession(mode,{type:sel});
+    act.appendChild(b1);
+    if(SES) { const b2=el('button','btn','继续上次（第'+(SES.pos+1)+'题）'); b2.onclick=()=>{SES.mode=mode; render();}; act.appendChild(b2); }
+    wrap.appendChild(act);
+    c.appendChild(wrap);
+    return;
+  }
+  drawQuestion(c);
+}
+
+function drawQuestion(c){
+  const id = SES.list[SES.pos];
+  const q = getQ(id);
+  if(!q){ nextQ(); return; }
+  const rec = S.answers[id];
+  const showAns = !!rec;   // 已答过即显示答案
+  const pending = (SES._sel && SES._sel[id]) || '';
+  const sel = rec ? rec.sel : (pending || null);
+
+  const card = el('div','card pad');
+  const issue = q.issue;
+
+  const head = el('div','qhead');
+  head.innerHTML = `<span class="qno">第 ${SES.pos+1} / ${SES.list.length} 题</span>
+    <span class="pill ${TYPE_CLS[q.type]}">${TYPE_LABEL[q.type]||''}</span>
+    ${q.chapter?`<span class="pill">${esc(q.chapter)}</span>`:''}
+    ${q.no?`<span class="pill">原题号 ${esc(q.no)}</span>`:''}
+    ${issue&&issue.level==='high'?`<span class="pill" style="background:var(--bad-soft);color:var(--bad)">⚠ 答案存疑</span>`:''}
+    ${issue&&issue.level==='mid'?`<span class="pill" style="background:var(--warn-soft);color:var(--warn)">⚠ 有争议</span>`:''}
+    ${issue&&issue.level==='info'?`<span class="pill" style="background:var(--brand-soft);color:var(--brand)">ⓘ 备注</span>`:''}
+    ${S.fav.includes(id)?'<span class="pill" style="background:var(--warn-soft);color:var(--warn)">★ 已收藏</span>':''}`;
+  card.appendChild(head);
+
+  const stem = el('div','stem'); stem.textContent = q.stem; card.appendChild(stem);
+
+  const opts = el('div','opts');
+  const optEls = {};
+  (q.options||[]).forEach(o=>{
+    const b = el('button','opt');
+    b.dataset.k = o.k;
+    b.innerHTML = `<span class="k">${esc(o.k)}</span><span class="txt">${esc(o.t)}</span>`;
+    if(showAns){
+      const ansArr = (q.answer||'').split('');
+      if(ansArr.includes(o.k)){ b.classList.add('right'); b.insertAdjacentHTML('beforeend','<span class="tag">正确答案</span>'); }
+      if(sel && sel.includes(o.k) && !ansArr.includes(o.k)){ b.classList.add('wrong'); b.insertAdjacentHTML('beforeend','<span class="tag">你选的</span>'); }
+      b.classList.add('locked');
+    } else if(sel && sel.includes(o.k)){ b.classList.add('sel'); }
+    b.onclick = ()=>choose(id, o.k);
+    optEls[o.k]=b;
+    opts.appendChild(b);
+  });
+  card.appendChild(opts);
+
+  // 简答/案例题：无选项，提供参考答案 + 自评
+  const isQA = !(q.options||[]).length;
+  if(isQA){
+    const ref = el('div','explain hide');
+    ref.innerHTML = '<span class="lbl">参考答案</span>' + esc(q.explain || '（原题未提供参考答案）');
+    const tbar = el('div','actions');
+    const tb = el('button','btn','展开参考答案');
+    tb.onclick = ()=>{ ref.classList.toggle('hide'); tb.textContent = ref.classList.contains('hide') ? '展开参考答案' : '收起参考答案'; };
+    tbar.appendChild(tb);
+    if(!showAns){
+      tbar.insertAdjacentHTML('beforeend','<span class="muted" style="margin-left:6px">对照参考答案自评：</span>');
+      const ok = el('button','btn primary','我答对了'); ok.onclick=()=>selfAssess(id,true);
+      const no = el('button','btn','没答对'); no.onclick=()=>selfAssess(id,false);
+      tbar.append(ok,no);
+    }
+    card.appendChild(tbar);
+    card.appendChild(ref);
+  }
+
+  // 多选需要提交按钮
+  if(!showAns && isMulti(q)){
+    const act=el('div','actions');
+    act.innerHTML='<span class="muted">多选题：选好全部选项后点「提交答案」</span>';
+    const sub=el('button','btn primary','提交答案');
+    sub.onclick=()=>submitMulti(id);
+    act.appendChild(sub);
+    card.appendChild(act);
+  }
+
+  if(showAns){
+    const ok = rec.ok;
+    const isQA = !(q.options||[]).length;
+    const fb = el('div','feedback '+(ok?'ok':'bad'));
+    if(isQA){
+      fb.innerHTML = ok
+        ? `<span>✓ 已掌握（自评答对）</span>`
+        : `<span>✗ 未掌握（自评未答对）</span><span style="margin-left:auto;font-weight:700">对照参考答案再复习一遍</span>`;
+    } else {
+      fb.innerHTML = ok
+      ? `<span>✓ 回答正确</span><span style="margin-left:auto;font-weight:700">正确答案：${esc(q.answer)}</span>`
+      : `<span>✗ 回答错误</span><span style="margin-left:auto;font-weight:700">你的作答：${esc(rec.sel||'未选')} ｜ 正确答案：${esc(q.answer)}</span>`;
+    }
+    card.appendChild(fb);
+
+    if(q.explain){
+      const ex=el('div','explain');
+      ex.innerHTML=`<span class="lbl">解析</span>`+esc(q.explain);
+      card.appendChild(ex);
+    }
+    if(issue && issue.level){
+      const cls = issue.level==='high' ? 'hi' : issue.level==='info' ? 'info' : '';
+      const title = issue.level==='high' ? '⚠ 本题答案疑似有误'
+                  : issue.level==='mid' ? '⚠ 本题答案存在争议'
+                  : 'ⓘ 题目备注';
+      const iss=el('div','issue '+cls);
+      iss.innerHTML=`<div class="hd">${title}</div>
+        <div>${esc(issue.note||'')}</div>
+        ${issue.suggest?`<div style="margin-top:6px">建议答案：<span class="sug">${esc(issue.suggest)}</span></div>`:''}`;
+      card.appendChild(iss);
+    }
+    if(S.notes[id]){
+      const nt=el('div','explain'); nt.innerHTML=`<span class="lbl">我的笔记</span>`+esc(S.notes[id]); card.appendChild(nt);
+    }
+  }
+
+  // 操作条
+  const act=el('div','actions');
+  const prev=el('button','btn','← 上一题'); prev.disabled = SES.pos<=0; prev.onclick=()=>{SES.pos--; render();};
+  const next=el('button','btn primary','下一题 →'); next.onclick=()=>nextQ();
+  const fav=el('button','btn', S.fav.includes(id)?'★ 已收藏':'☆ 收藏');
+  fav.onclick=()=>{ toggle(S.fav,id); toast(S.fav.includes(id)?'已收藏':'已取消收藏'); updateCounts(); render(); };
+  const doubt=el('button','btn ghost', S.doubt.includes(id)?'已标记存疑':'⚠ 标记存疑');
+  doubt.onclick=()=>{ toggle(S.doubt,id); updateCounts(); toast(S.doubt.includes(id)?'已标记为答案存疑':'已取消标记'); render(); };
+  const note=el('button','btn ghost','✎ 笔记');
+  note.onclick=()=>openNote(id);
+  act.append(prev,next,fav,doubt,note);
+  card.appendChild(act);
+  c.appendChild(card);
+
+  // 答题卡
+  const sheet=el('div','card pad'); sheet.style.marginTop='14px';
+  sheet.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h2 class="sec" style="margin:0"><span class="dot"></span>答题卡</h2>
+      <span class="muted">已答 ${SES.list.filter(x=>S.answers[x]).length} / ${SES.list.length}</span></div>`;
+  const grid=el('div','sheet');
+  SES.list.forEach((qid2,i)=>{
+    const b=el('button',null,String(i+1));
+    if(i===SES.pos) b.classList.add('cur');
+    const r=S.answers[qid2];
+    if(r) b.classList.add(r.ok?'ok':'bad');
+    b.onclick=()=>{ SES.pos=i; render(); };
+    grid.appendChild(b);
+  });
+  sheet.appendChild(grid);
+  const lg=el('div','legend');
+  lg.innerHTML=`<span><i style="background:var(--ok-soft);border:1px solid var(--ok)"></i>答对</span>
+    <span><i style="background:var(--bad-soft);border:1px solid var(--bad)"></i>答错</span>
+    <span><i style="background:var(--bg);border:1px solid var(--line)"></i>未答</span>
+    <span>点击题号可跳转</span>`;
+  sheet.appendChild(lg);
+  c.appendChild(sheet);
+}
+
+function toggle(arr, v){ const i=arr.indexOf(v); if(i>=0) arr.splice(i,1); else arr.push(v); save(); }
+function choose(id, k){
+  const q=getQ(id); const rec=S.answers[id];
+  if(rec) return;               // 已答，锁定
+  if(isMulti(q)){
+    const cur = (SES._sel&&SES._sel[id]) || '';
+    const nx = cur.includes(k) ? cur.replace(k,'') : (cur+k).split('').sort().join('');
+    SES._sel = SES._sel||{}; SES._sel[id]=nx;
+    render(); return;
+  }
+  commit(id, k);
+}
+function submitMulti(id){
+  const sel = (SES._sel&&SES._sel[id])||'';
+  if(!sel){ toast('请先选择选项'); return; }
+  commit(id, sel);
+}
+function selfAssess(id, ok){
+  S.answers[id]={sel:'自评', ok, ts:Date.now()};
+  const ts=todayStat(); ts.d++; if(ok) ts.r++;
+  S.stats.done++; if(ok) S.stats.right++;
+  if(!ok && !S.wrong.includes(id)) S.wrong.push(id);
+  if(ok && S.wrong.includes(id)) S.wrong=S.wrong.filter(x=>x!==id);
+  save(); render();
+}
+function commit(id, sel){
+  const q=getQ(id);
+  if(SES && SES._sel) delete SES._sel[id];
+  const ok = isCorrect(q, sel);
+  S.answers[id]={sel, ok, ts:Date.now()};
+  const ts=todayStat(); ts.d++; if(ok) ts.r++;
+  S.stats.done++; if(ok) S.stats.right++;
+  if(!ok && !S.wrong.includes(id)) S.wrong.push(id);
+  if(ok && S.wrong.includes(id)){ /* 保留错题，直到手动移除 or 错题模式答对 */ if(SES&&SES.mode==='wrong'){ S.wrong=S.wrong.filter(x=>x!==id); } }
+  // streak
+  const d=today();
+  if(S.stats.streak.last!==d){ S.stats.streak.last=d; S.stats.streak.n=(S.stats.streak.n||0)+1; }
+  save();
+  if(SES.exam) return;
+  render();
+  setTimeout(()=>{ const n=document.querySelector('.actions .btn.primary'); if(n&&!SES.showAns) {} },0);
+}
+function nextQ(){
+  if(!SES) return;
+  if(SES.pos < SES.list.length-1){ SES.pos++; render(); }
+  else {
+    const answered=SES.list.filter(x=>S.answers[x]).length;
+    toast(`本轮完成！已答 ${answered} 题`);
+  }
+}
+
+/* 笔记 */
+function openAbout(){
+  const m=$('#modal'), b=$('#modalBox');
+  b.innerHTML=`<h3>题库与标注说明</h3>
+   <div style="font-size:13.5px;line-height:1.95;color:var(--ink2)">
+   <p style="margin:0 0 10px"><b style="color:var(--ink)">一、题库来源</b><br>
+   由《人工智能训练师-300道题.docx》中的 354 张题目截图逐题转录整理而成，共 ${QS.length} 题：
+   单选题 ${QS.filter(q=>q.type==='single').length}、判断题 ${QS.filter(q=>q.type==='tf').length}、
+   多选题 ${QS.filter(q=>q.type==='multi').length}、简答/案例题 ${QS.filter(q=>q.type==='case').length}。
+   原文档题号 6 缺图，故实际可用 299 题；原文档中重复出现的同题已去重。</p>
+   <p style="margin:0 0 10px"><b style="color:var(--ink)">二、答案标注规则</b><br>
+   <span style="color:var(--bad);font-weight:700">⚠ 答案存疑</span>：答案与知识点明显冲突，或与题库内其他题目自相矛盾，给出建议答案。<br>
+   <span style="color:var(--warn);font-weight:700">⚠ 有争议</span>：答案可成立但唯一性不足（表述不严谨、多解、与同类题冲突）。<br>
+   <span style="color:var(--brand);font-weight:700">ⓘ 备注</span>：题目本身有排版问题（选项重复、缺图）或需配合原图作答，答案无需修改。</p>
+   <p style="margin:0 0 10px"><b style="color:var(--ink)">三、四川成都考试规则（参考）</b><br>
+   理论知识：90 分钟，百分制，60 分及格；技能考核：120 分钟，60 分及格；两科均达线才通过。
+   理论题型以单选、判断、多选为主，部分批次含案例（情景）题。本工作台模拟卷按 100 分折算，可在「设置」中调整时长、题量与及格线。</p>
+   <p style="margin:0"><b style="color:var(--ink)">四、免责声明</b><br>
+   题库与答案解析由文档内容转录、并按知识点人工校验整理，仅供个人备考练习；考试范围、题型与评分以当期评价机构公告及《国家职业技能标准》为准。</p>
+   </div>
+   <div class="actions"><button class="btn primary" id="abClose">知道了</button></div>`;
+  m.classList.add('show');
+  $('#abClose').onclick=()=>m.classList.remove('show');
+}
+
+function openNote(id){
+  const m=$('#modal'), b=$('#modalBox');
+  b.innerHTML=`<h3>笔记 · 第 ${esc(getQ(id).no||'')} 题</h3>
+    <textarea id="noteTa" placeholder="记录易错点、记忆口诀…">${esc(S.notes[id]||'')}</textarea>
+    <div class="actions"><button class="btn primary" id="noteSave">保存</button><button class="btn" id="noteClose">取消</button></div>`;
+  m.classList.add('show');
+  $('#noteSave').onclick=()=>{ const v=$('#noteTa').value.trim(); if(v) S.notes[id]=v; else delete S.notes[id]; save(); m.classList.remove('show'); toast('笔记已保存'); render(); };
+  $('#noteClose').onclick=()=>m.classList.remove('show');
+  $('#noteTa').focus();
+}
+
+/* ================= 列表（错题/收藏/存疑） ================= */
+function renderList(c){
+  let ids = view==='wrong'? S.wrong.slice() : view==='fav'? S.fav.slice()
+    : QS.filter(q=>(q.issue&&q.issue.level)||S.doubt.includes(q.id)).map(q=>q.id);
+  if(!ids.length){
+    const e=el('div','card empty');
+    e.innerHTML=`<div class="big">${view==='wrong'?'🎉':view==='fav'?'☆':'✓'}</div>
+      <div style="font-weight:700;font-size:15px;color:var(--ink)">${view==='wrong'?'还没有错题':view==='fav'?'还没有收藏':'没有存疑题'}</div>
+      <div class="muted" style="margin-top:6px">${view==='wrong'?'继续保持！':'去练习时点击收藏/标记'}</div>`;
+    c.appendChild(e); return;
+  }
+  const card=el('div','card pad');
+  card.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+    <h2 class="sec" style="margin:0"><span class="dot"></span>共 ${ids.length} 题</h2>
+    <div style="display:flex;gap:8px"><button class="btn sm primary" id="goAll">全部重做</button>
+    ${view==='wrong'?'<button class="btn sm" id="clearWrong">清空错题</button>':''}</div></div>
+    ${view==='doubt'?`<div class="muted" style="margin-bottom:10px">含三类：<b style="color:var(--bad)">⚠ 答案存疑</b>（答案疑似错误，附建议答案）、<b style="color:var(--warn)">⚠ 有争议</b>（多解/表述不严谨）、<b style="color:var(--brand)">ⓘ 备注</b>（排版或配图问题）。这也是你自己手动标记的题。</div>`:''}`;
+  ids.forEach(id=>{
+    const q=getQ(id); if(!q) return;
+    const r=el('div','row'); r.style.cursor='pointer';
+    const iss=q.issue&&q.issue.level;
+    r.innerHTML=`<div class="no">${esc(q.no||'')}</div>
+      <div class="body"><p>${esc(q.stem)}</p>
+      <div class="meta"><span class="pill ${TYPE_CLS[q.type]}">${TYPE_LABEL[q.type]||''}</span>
+      <span>答案 ${esc(q.answer)}</span>${S.answers[id]?`<span>你答 ${esc(S.answers[id].sel)}</span>`:''}
+      ${iss?`<span style="color:var(--bad);font-weight:700">⚠ 答案存疑</span>`:''}
+      ${(q.issue&&q.issue.level==='mid')?`<span style="color:var(--warn);font-weight:700">⚠ 有争议</span>`:''}
+      ${(q.issue&&q.issue.level==='info')?`<span style="color:var(--brand)">ⓘ 备注</span>`:''}</div></div>`;
+    r.onclick=()=>{ startSession(view==='wrong'?'wrong':view==='fav'?'fav':'doubt',{jump:id}); };
+    card.appendChild(r);
+  });
+  c.appendChild(card);
+  card.querySelector('#goAll').onclick=()=>startSession(view==='wrong'?'wrong':view==='fav'?'fav':'doubt');
+  const cw=card.querySelector('#clearWrong'); if(cw) cw.onclick=()=>{ if(confirm('确定清空全部错题？')){ S.wrong=[]; save(); updateCounts(); render(); } };
+}
+
+/* ================= 模拟考试 ================= */
+function renderExam(c){
+  if(S.exam && S.exam.active){ drawExam(c); return; }
+  if(S.exam && !S.exam.active){ drawExamResult(c); return; }
+  const st=S.settings;
+  const card=el('div','card pad');
+  card.innerHTML=`<h2 class="sec"><span class="dot"></span>模拟考试设置</h2>
+   <div class="grid g3" style="margin:16px 0">
+     <div class="stat"><div class="k">考试时长</div><div class="v">${st.duration}<small>分钟</small></div></div>
+     <div class="stat"><div class="k">总分 / 及格线</div><div class="v">100<small>分 · ${st.passScore}及格</small></div></div>
+     <div class="stat"><div class="k">抽题数量</div><div class="v">${st.single+st.tf+st.multi}<small>题</small></div></div>
+   </div>
+   <p class="muted" style="margin:0 0 4px">试卷结构：单选题 ${st.single} 题 ×1 分 ｜ 判断题 ${st.tf} 题 ×1 分 ｜ 多选题 ${st.multi} 题 ×${st.multiScore} 分</p>
+   <p class="muted" style="margin:0 0 16px">四川省职业技能等级认定《理论知识》科目：90 分钟、百分制、60 分及格。多选题少选/错选不得分。</p>`;
+  const act=el('div','actions');
+  const b=el('button','btn primary','开始考试 →');
+  b.onclick=()=>startExam();
+  const b2=el('button','btn','调整设置'); b2.onclick=()=>openSettings(true);
+  act.append(b,b2);
+  card.appendChild(act);
+  c.appendChild(card);
+
+  const rule=el('div','card pad'); rule.style.marginTop='14px';
+  rule.innerHTML=`<h2 class="sec"><span class="dot"></span>考试规则（四川 · 成都）</h2>
+    <div style="font-size:13.8px;line-height:1.95;color:var(--ink2)">
+    · 科目构成：理论知识（90 分钟）+ 技能考核（120 分钟），两科分别计时。<br>
+    · 及格标准：两科各 60 分及格，任一科不达线即不通过。<br>
+    · 理论题型：单选题、判断题、多选题为主，部分批次含案例（情景）题。<br>
+    · 本工作台模拟卷按 100 分制折算，交卷后给出得分、正确率与逐题解析。<br>
+    · 以当期评价机构公告与考核大纲为准，本页规则仅作练习参考。</div>`;
+  c.appendChild(rule);
+}
+
+function startExam(){
+  const st=S.settings;
+  const pick=(type,n)=>shuffle(QS.filter(q=>q.type===type).map(q=>q.id)).slice(0,n);
+  let ids=[...pick('single',st.single),...pick('tf',st.tf),...pick('multi',st.multi)];
+  if(st.shuffle) ids=shuffle(ids);
+  if(ids.length<5){ toast('题库数量不足'); return; }
+  S.exam={active:true, ids, pos:0, sel:{}, start:Date.now(), end:Date.now()+st.duration*60000, left:st.duration*60};
+  save();
+  render();
+}
+
+let examTimer=null;
+function drawExam(c){
+  const E=S.exam;
+  const q=getQ(E.ids[E.pos]);
+  const card=el('div','card pad');
+  const left = Math.max(0, Math.floor((E.end - Date.now())/1000));
+  const mm=String(Math.floor(left/60)).padStart(2,'0'), ss=String(left%60).padStart(2,'0');
+  const bar=el('div','exambar'+(left<300?' danger':''));
+  bar.innerHTML=`<div><div class="muted">剩余时间</div><div class="t">${mm}:${ss}</div></div>
+    <div style="flex:1;min-width:120px"><div class="muted" style="margin-bottom:5px">进度 ${E.pos+1} / ${E.ids.length} · 已答 ${Object.keys(E.sel).length}</div>
+    <div class="qbar"><i style="width:${(E.pos+1)/E.ids.length*100}%"></i></div></div>
+    <button class="btn" id="exSheet">答题卡</button>
+    <button class="btn primary" id="exSubmit">交卷</button>`;
+  c.appendChild(bar);
+
+  const head=el('div','qhead');
+  head.innerHTML=`<span class="qno">第 ${E.pos+1} 题</span>
+    <span class="pill ${TYPE_CLS[q.type]}">${TYPE_LABEL[q.type]}</span>
+    ${isMulti(q)?'<span class="pill" style="background:#f3ebff;color:#7b3fe4">可多选</span>':''}`;
+  card.appendChild(head);
+  const stem=el('div','stem'); stem.textContent=q.stem; card.appendChild(stem);
+  const opts=el('div','opts');
+  (q.options||[]).forEach(o=>{
+    const cur=(E.sel[q.id]||'');
+    const b=el('button','opt'+(cur.includes(o.k)?' sel':''));
+    b.innerHTML=`<span class="k">${esc(o.k)}</span><span class="txt">${esc(o.t)}</span>`;
+    b.onclick=()=>{
+      if(isMulti(q)){
+        const nx = cur.includes(o.k)? cur.replace(o.k,'') : [...(cur+o.k)].sort().join('');
+        if(nx) E.sel[q.id]=nx; else delete E.sel[q.id];
+      } else { E.sel[q.id]=o.k; }
+      save(); render();
+    };
+    opts.appendChild(b);
+  });
+  card.appendChild(opts);
+  const act=el('div','actions');
+  const prev=el('button','btn','← 上一题'); prev.disabled=E.pos<=0; prev.onclick=()=>{E.pos--;save();render();};
+  const next=el('button','btn', E.pos>=E.ids.length-1?'已是最后一题':'下一题 →'); next.onclick=()=>{ if(E.pos<E.ids.length-1){E.pos++;save();render();} };
+  act.append(prev,next);
+  card.appendChild(act);
+  c.appendChild(card);
+
+  if(!examTimer) examTimer=setInterval(()=>{
+    if(!S.exam||!S.exam.active){ clearInterval(examTimer); examTimer=null; return; }
+    const l=Math.floor((S.exam.end-Date.now())/1000);
+    if(l<=0){ clearInterval(examTimer); examTimer=null; submitExam(true); return; }
+    if(view==='exam'){ const t=document.querySelector('.exambar .t'); if(t){ const mm=String(Math.floor(l/60)).padStart(2,'0'),ss=String(l%60).padStart(2,'0'); t.textContent=mm+':'+ss; const box=document.querySelector('.exambar'); if(box) box.classList.toggle('danger', l<300); } }
+  },1000);
+
+  bar.querySelector('#exSubmit').onclick=()=>{ if(confirm('确定交卷？未答题目按 0 分计。')) submitExam(); };
+  bar.querySelector('#exSheet').onclick=()=>openExamSheet();
+}
+
+function openExamSheet(){
+  const E=S.exam, m=$('#modal'), b=$('#modalBox');
+  b.innerHTML=`<h3>答题卡 · 已答 ${Object.keys(E.sel).length} / ${E.ids.length}</h3>`;
+  const g=el('div','sheet');
+  E.ids.forEach((id,i)=>{
+    const btn=el('button',null,String(i+1));
+    if(E.sel[id]) btn.classList.add('done');
+    if(i===E.pos) btn.classList.add('cur');
+    btn.onclick=()=>{ E.pos=i; save(); m.classList.remove('show'); render(); };
+    g.appendChild(btn);
+  });
+  b.appendChild(g);
+  const act=el('div','actions');
+  const close=el('button','btn','关闭'); close.onclick=()=>m.classList.remove('show');
+  const sub=el('button','btn primary','交卷');
+  sub.onclick=()=>{ m.classList.remove('show'); if(confirm('确定交卷？')) submitExam(); };
+  act.append(close,sub); b.appendChild(act);
+  m.classList.add('show');
+}
+
+function submitExam(auto){
+  const E=S.exam, st=S.settings;
+  let score=0, right=0;
+  const detail=[];
+  E.ids.forEach(id=>{
+    const q=getQ(id), sel=E.sel[id]||'';
+    const ok=isCorrect(q,sel);
+    const pts = q.type==='multi'? st.multiScore : 1;
+    if(ok) score+=pts;
+    if(ok) right++;
+    detail.push({id,sel,ok});
+    if(!ok && !S.wrong.includes(id)) S.wrong.push(id);
+  });
+  score = Math.round(score);
+  const ts=todayStat(); ts.d+=E.ids.length; ts.r+=right;
+  S.stats.done+=E.ids.length; S.stats.right+=right;
+  S.exam={active:false, score, right, total:E.ids.length, detail, at:Date.now(), auto:!!auto};
+  save(); updateCounts(); render();
+  setTimeout(()=>toast(auto?'时间到，已自动交卷':'交卷完成，得分 '+score),300);
+}
+
+function drawExamResult(c){
+  const E=S.exam, st=S.settings;
+  const pass = E.score>=st.passScore;
+  const rate = Math.round(E.right/E.total*100);
+  const card=el('div','card pad');
+  card.innerHTML=`<div style="text-align:center;padding:10px 0 4px">
+      <div style="font-size:13px;color:var(--ink3)">${E.auto?'时间到自动交卷':'本次模拟考试得分'}</div>
+      <div style="font-size:56px;font-weight:800;line-height:1.1;color:${pass?'var(--ok)':'var(--bad)'}">${E.score}<small style="font-size:18px;color:var(--ink3)">/100</small></div>
+      <div style="font-weight:800;margin-top:6px;color:${pass?'var(--ok)':'var(--bad)'}">${pass?'✓ 及格':'✗ 未及格'}</div>
+      <div class="muted" style="margin-top:6px">答对 ${E.right}/${E.total} 题 · 正确率 ${rate}% · 及格线 ${st.passScore} 分</div>
+    </div>`;
+  const act=el('div','actions'); act.style.justifyContent='center';
+  const b1=el('button','btn primary','再来一套'); b1.onclick=()=>{ S.exam=null; save(); render(); };
+  const b2=el('button','btn','查看错题'); b2.onclick=()=>{ S.exam=null; save(); go('wrong'); };
+  act.append(b1,b2); card.appendChild(act);
+  c.appendChild(card);
+
+  const list=el('div','card pad'); list.style.marginTop='14px';
+  list.innerHTML=`<h2 class="sec"><span class="dot"></span>逐题回顾</h2>`;
+  E.detail.forEach((d,i)=>{
+    const q=getQ(d.id);
+    const r=el('div','row');
+    r.innerHTML=`<div class="no" style="color:${d.ok?'var(--ok)':'var(--bad)'}">${d.ok?'✓':'✗'}</div>
+      <div class="body"><p>${i+1}. ${esc(q.stem)}</p>
+      <div class="meta"><span class="pill ${TYPE_CLS[q.type]}">${TYPE_LABEL[q.type]}</span>
+      <span>你答 ${esc(d.sel||'未答')}</span><span>正确答案 ${esc(q.answer)}</span>
+      ${q.issue&&q.issue.level?'<span style="color:var(--bad);font-weight:700">⚠ 答案存疑</span>':''}</div></div>`;
+    list.appendChild(r);
+  });
+  c.appendChild(list);
+}
+
+/* ================= 统计 ================= */
+function renderStats(c){
+  const total=QS.length, answered=Object.keys(S.answers).length;
+  const right=Object.values(S.answers).filter(a=>a.ok).length;
+  const byType={single:[0,0],tf:[0,0],multi:[0,0],case:[0,0]};
+  QS.forEach(q=>{ if(S.answers[q.id]){ byType[q.type][0]++; if(S.answers[q.id].ok) byType[q.type][1]++; } });
+  const card=el('div','card pad');
+  card.innerHTML=`<h2 class="sec"><span class="dot"></span>总体进度</h2>
+   <div class="grid g4" style="margin-bottom:18px">
+     <div class="stat"><div class="k">已练题数</div><div class="v">${answered}<small>/ ${total}</small></div></div>
+     <div class="stat"><div class="k">正确率</div><div class="v">${answered?Math.round(right/answered*100):0}<small>%</small></div></div>
+     <div class="stat"><div class="k">错题</div><div class="v">${S.wrong.length}<small>题</small></div></div>
+     <div class="stat"><div class="k">连续打卡</div><div class="v">${S.stats.streak.n||0}<small>天</small></div></div>
+   </div>
+   <h2 class="sec"><span class="dot"></span>各题型正确率</h2>
+   <div class="bars">${Object.entries(byType).map(([t,[a,r]])=>{
+      const p=a?Math.round(r/a*100):0;
+      return `<div class="bar"><span>${TYPE_LABEL[t]}</span>
+        <div class="track"><i style="width:${p}%"></i></div>
+        <span class="v">${p}%</span></div>`;
+   }).join('')}</div>`;
+  c.appendChild(card);
+
+  const days=Object.entries(S.stats.byDay).sort((a,b)=>a[0]<b[0]?-1:1).slice(-14);
+  const d2=el('div','card pad'); d2.style.marginTop='14px';
+  const max=Math.max(1,...days.map(([,v])=>v.d));
+  d2.innerHTML=`<h2 class="sec"><span class="dot"></span>近 14 天答题量</h2>
+    <div style="display:flex;gap:8px;align-items:flex-end;height:120px;padding-top:10px">
+      ${days.length?days.map(([d,v])=>`<div style="flex:1;text-align:center">
+        <div title="${d} 答${v.d}对${v.r}" style="height:${Math.max(4,v.d/max*90)}px;background:linear-gradient(180deg,#2c5cff,#7b5cff);border-radius:5px 5px 2px 2px"></div>
+        <div style="font-size:9.5px;color:var(--ink3);margin-top:5px">${d.slice(5)}</div></div>`).join(''):'<div class="muted">暂无数据</div>'}
+    </div>`;
+  c.appendChild(d2);
+}
+
+/* ================= 设置 ================= */
+function openSettings(fromExam){
+  const m=$('#modal'), b=$('#modalBox');
+  const st=S.settings;
+  b.innerHTML=`<h3>设置</h3>
+    <div class="field"><label>考试日期<span class="hint">顶部倒计时使用</span></label><input type="date" id="sDate" value="${esc(S.examDate)}"></div>
+    <div class="field"><label>开考时间</label><input type="time" id="sTime" value="${esc(S.examTime||'09:00')}"></div>
+    <div class="field"><label>模拟考时长（分钟）</label><input type="number" id="sDur" min="10" max="300" value="${st.duration}" style="width:90px"></div>
+    <div class="field"><label>及格分</label><input type="number" id="sPass" min="1" max="100" value="${st.passScore}" style="width:90px"></div>
+    <div class="field"><label>单选题数</label><input type="number" id="sSingle" min="0" max="231" value="${st.single}" style="width:90px"></div>
+    <div class="field"><label>判断题数</label><input type="number" id="sTf" min="0" max="30" value="${st.tf}" style="width:90px"></div>
+    <div class="field"><label>多选题数</label><input type="number" id="sMulti" min="0" max="30" value="${st.multi}" style="width:90px"></div>
+    <div class="field"><label>多选题分值</label><input type="number" id="sMs" min="1" max="10" value="${st.multiScore}" style="width:90px"></div>
+    <div class="actions" style="margin-top:20px">
+      <button class="btn primary" id="sSave">保存</button>
+      <button class="btn" id="sCancel">取消</button>
+      <button class="btn ghost" id="sReset" style="margin-left:auto">清空所有学习记录</button>
+    </div>`;
+  m.classList.add('show');
+  $('#sCancel').onclick=()=>m.classList.remove('show');
+  $('#sReset').onclick=()=>{ if(confirm('将清空作答记录、错题、收藏、笔记（保留题库）。确定？')){ const keep=S.examDate, keepT=S.examTime; localStorage.removeItem(LS_KEY); S=defaultState(); S.examDate=keep; S.examTime=keepT; save(); m.classList.remove('show'); render(); updateCounts(); toast('已重置'); } };
+  $('#sSave').onclick=()=>{
+    S.examDate=$('#sDate').value; S.examTime=$('#sTime').value||'09:00';
+    st.duration=+$('#sDur').value||90; st.passScore=+$('#sPass').value||60;
+    st.single=+$('#sSingle').value; st.tf=+$('#sTf').value; st.multi=+$('#sMulti').value; st.multiScore=+$('#sMs').value||2;
+    save(); m.classList.remove('show'); tickExamCountdown(); toast('设置已保存'); render();
+  };
+}
+
+/* ================= 事件 ================= */
+document.querySelectorAll('.nav-item').forEach(b=>b.onclick=()=>{ SES=null; go(b.dataset.view); });
+$('#btnMenu').onclick=()=>{ $('#side').classList.toggle('open'); $('#backdrop').classList.toggle('show'); };
+$('#backdrop').onclick=()=>{ $('#side').classList.remove('open'); $('#backdrop').classList.remove('show'); };
+$('#btnSettings').onclick=()=>openSettings();
+$('#cdExam').onclick=()=>openSettings();
+$('#btnTheme').onclick=()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const nx=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',nx);
+  localStorage.setItem('aitrainer_theme',nx);
+  $('#btnTheme').textContent = nx==='dark'?'◑ 浅色模式':'◐ 深色模式';
+};
+if(localStorage.getItem('aitrainer_theme')==='dark'){ document.documentElement.setAttribute('data-theme','dark'); $('#btnTheme').textContent='◑ 浅色模式'; }
+$('#modal').onclick=e=>{ if(e.target.id==='modal') e.currentTarget.classList.remove('show'); };
+
+document.addEventListener('keydown',e=>{
+  if(e.target.matches('input,textarea,select')) return;
+  const k=e.key.toUpperCase();
+  if(!SES || SES.exam || !document.querySelector('.opts')) return;
+  const q=getQ(SES.list[SES.pos]);
+  if(['A','B','C','D','E'].includes(k)){
+    if(q.options.some(o=>o.k===k)) { choose(q.id,k); e.preventDefault(); }
+  } else if(e.key==='Enter'){ nextQ(); }
+  else if(k==='F'){ toggle(S.fav,q.id); updateCounts(); render(); }
+  else if(k==='X'){ toggle(S.doubt,q.id); updateCounts(); render(); }
+  else if(e.key==='ArrowLeft'){ if(SES.pos>0){SES.pos--;render();} }
+  else if(e.key==='ArrowRight'){ nextQ(); }
+});
+
+/* ================= 启动 ================= */
+tickExamCountdown();
+updateCounts();
+go('home');
+</script>
+</body>
+</html>
